@@ -1,0 +1,1077 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Aetheria</title>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@500&display=swap");
+
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      :root {
+        --bg: #030303;
+        --panel: rgba(8, 8, 8, 0.88);
+        --border: rgba(255, 255, 255, 0.07);
+        --dim: #555;
+        --text-soft: #bbb;
+        --accent: #f4f4f4;
+      }
+
+      body,
+      html {
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background:
+          radial-gradient(
+            circle at 15% 20%,
+            rgba(43, 104, 255, 0.12),
+            transparent 40%
+          ),
+          radial-gradient(
+            circle at 85% 75%,
+            rgba(6, 207, 119, 0.12),
+            transparent 42%
+          ),
+          var(--bg);
+        font-family: "Space Grotesk", "Segoe UI", sans-serif;
+        color: #fff;
+      }
+
+      #canvas-container {
+        position: absolute;
+        inset: 0;
+      }
+
+      #panel-toggle {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        z-index: 130;
+        display: none;
+        padding: 8px 10px;
+        font-size: 0.64rem;
+        letter-spacing: 0.8px;
+        color: #f0f0f0;
+        border-radius: 999px;
+        background: rgba(12, 12, 12, 0.78);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+      }
+
+      /* ── Panel ── */
+      #ui-panel {
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 290px;
+        height: 100vh;
+        background: var(--panel);
+        backdrop-filter: blur(28px);
+        -webkit-backdrop-filter: blur(28px);
+        border-left: 1px solid var(--border);
+        display: flex;
+        flex-direction: column;
+        z-index: 100;
+        transition: transform 0.3s ease;
+      }
+
+      .panel-header {
+        padding: 16px 14px 12px;
+        border-bottom: 1px solid var(--border);
+        flex-shrink: 0;
+      }
+      .panel-header h1 {
+        font-size: 1.06rem;
+        font-weight: 700;
+        letter-spacing: -0.2px;
+      }
+      .panel-header p {
+        font-size: 0.58rem;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        color: var(--dim);
+        margin-top: 2px;
+      }
+      .panel-header .header-tip {
+        margin-top: 8px;
+        font-size: 0.62rem;
+        color: #7e7e7e;
+        line-height: 1.35;
+      }
+
+      .status-row {
+        margin-top: 10px;
+        display: flex;
+        gap: 6px;
+      }
+
+      .chip {
+        font-size: 0.54rem;
+        letter-spacing: 0.8px;
+        text-transform: uppercase;
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        border-radius: 999px;
+        padding: 3px 8px;
+        color: #8f8f8f;
+        background: rgba(255, 255, 255, 0.03);
+      }
+
+      .chip.on {
+        color: #ffffff;
+        border-color: rgba(142, 245, 209, 0.55);
+        background: rgba(87, 233, 173, 0.16);
+      }
+
+      .panel-body {
+        flex: 1;
+        overflow-y: auto;
+        padding: 12px 14px;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+      .panel-body::-webkit-scrollbar {
+        width: 2px;
+      }
+      .panel-body::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.08);
+      }
+
+      /* ── Section ── */
+      .sec-title {
+        font-size: 0.55rem;
+        text-transform: uppercase;
+        letter-spacing: 2.5px;
+        color: var(--dim);
+        margin-bottom: 8px;
+      }
+
+      .sec-sub {
+        font-size: 0.6rem;
+        color: #6c6c6c;
+        margin-bottom: 8px;
+        line-height: 1.35;
+      }
+
+      /* ── Preset grid ── */
+      .preset-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 5px;
+      }
+
+      button {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid var(--border);
+        color: #999;
+        padding: 8px 4px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 0.63rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+        transition: all 0.15s;
+      }
+      button:hover {
+        background: rgba(255, 255, 255, 0.08);
+        color: #fff;
+        border-color: rgba(255, 255, 255, 0.15);
+      }
+
+      /* ── Rainbow button ── */
+      #rainbow-btn {
+        grid-column: span 2;
+        padding: 9px;
+        position: relative;
+        overflow: hidden;
+        letter-spacing: 1px;
+      }
+      #rainbow-btn .btn-text {
+        position: relative;
+        z-index: 1;
+      }
+      #rainbow-btn::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          90deg,
+          #ff0040,
+          #ff8000,
+          #ffee00,
+          #00ff80,
+          #0088ff,
+          #8800ff,
+          #ff0040
+        );
+        background-size: 300% 100%;
+        opacity: 0;
+        transition: opacity 0.3s;
+      }
+      #rainbow-btn.on {
+        color: #fff;
+        font-weight: 700;
+        border-color: transparent;
+      }
+      #rainbow-btn.on::before {
+        opacity: 0.22;
+        animation: hshift 1.8s linear infinite;
+      }
+      #rainbow-btn.on {
+        box-shadow: 0 0 10px rgba(180, 100, 255, 0.25);
+      }
+      @keyframes hshift {
+        to {
+          background-position: 300% 0;
+        }
+      }
+
+      /* ── Sliders ── */
+      .ctrl {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+      }
+      .ctrl + .ctrl {
+        margin-top: 9px;
+      }
+
+      .ctrl-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .ctrl-row label {
+        font-size: 0.66rem;
+        color: var(--text-soft);
+      }
+      .ctrl-row .val {
+        font-size: 0.63rem;
+        font-family: "JetBrains Mono", monospace;
+        color: rgba(255, 255, 255, 0.5);
+        min-width: 32px;
+        text-align: right;
+      }
+
+      .ctrl-row .hint {
+        display: block;
+        font-size: 0.55rem;
+        color: #717171;
+        margin-top: 2px;
+        letter-spacing: 0.2px;
+      }
+
+      input[type="range"] {
+        width: 100%;
+        appearance: none;
+        background: rgba(255, 255, 255, 0.07);
+        height: 2px;
+        border-radius: 1px;
+        outline: none;
+      }
+      input[type="range"]::-webkit-slider-thumb {
+        appearance: none;
+        width: 11px;
+        height: 11px;
+        background: #fff;
+        border-radius: 50%;
+        cursor: pointer;
+        transition: transform 0.15s;
+        box-shadow: 0 0 4px rgba(255, 255, 255, 0.35);
+      }
+      input[type="range"]::-webkit-slider-thumb:hover {
+        transform: scale(1.35);
+      }
+
+      /* ── Color ── */
+      #color-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: opacity 0.25s;
+      }
+      #color-row label {
+        font-size: 0.66rem;
+        color: var(--text-soft);
+        flex: 1;
+      }
+      input[type="color"] {
+        width: 26px;
+        height: 26px;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 4px;
+        background: none;
+        cursor: pointer;
+        padding: 0;
+      }
+
+      /* ── Action buttons ── */
+      .action-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 5px;
+      }
+      .btn-generate {
+        grid-column: span 2;
+        background: rgba(255, 255, 255, 0.88) !important;
+        color: #000 !important;
+        font-weight: 700 !important;
+        border: none !important;
+        padding: 10px !important;
+      }
+      .btn-generate:hover {
+        background: #fff !important;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(255, 255, 255, 0.12);
+      }
+
+      #rainbow-controls {
+        margin-top: 10px;
+        padding: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.02);
+        transition: opacity 0.25s ease;
+      }
+
+      #rainbow-controls.off {
+        opacity: 0.35;
+        pointer-events: none;
+      }
+
+      .quick-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 9px;
+      }
+
+      /* ── Footer ── */
+      .panel-footer {
+        padding: 8px 14px;
+        border-top: 1px solid var(--border);
+        flex-shrink: 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .panel-footer span {
+        font-size: 0.58rem;
+        color: var(--dim);
+      }
+      #fps {
+        font-size: 0.63rem;
+        font-family: "JetBrains Mono", monospace;
+        color: #666;
+      }
+
+      #toast {
+        position: absolute;
+        left: 14px;
+        bottom: 14px;
+        z-index: 150;
+        padding: 8px 12px;
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        background: rgba(10, 10, 10, 0.82);
+        color: #d8d8d8;
+        font-size: 0.64rem;
+        letter-spacing: 0.2px;
+        opacity: 0;
+        transform: translateY(6px);
+        pointer-events: none;
+        transition:
+          opacity 0.2s ease,
+          transform 0.2s ease;
+      }
+
+      #toast.show {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      @media (max-width: 900px) {
+        #panel-toggle {
+          display: inline-flex;
+        }
+        #ui-panel {
+          width: min(86vw, 340px);
+        }
+        #ui-panel.collapsed {
+          transform: translateX(100%);
+        }
+        button {
+          min-height: 38px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="canvas-container"></div>
+    <button id="panel-toggle" type="button" aria-label="Afficher les réglages">
+      Réglages
+    </button>
+
+    <div id="ui-panel">
+      <div class="panel-header">
+        <h1>Aetheria</h1>
+        <p>Neural Math Engine</p>
+        <div class="header-tip">
+          Ajuste la forme, anime en rainbow et sauvegarde tes presets.
+        </div>
+        <div class="status-row">
+          <span id="chip-rainbow" class="chip">Rainbow off</span>
+          <span id="chip-state" class="chip">Live</span>
+        </div>
+      </div>
+
+      <div class="panel-body">
+        <div>
+          <div class="sec-title">Presets</div>
+          <div class="preset-grid">
+            <button onclick="setPreset('nids')">Nids</button>
+            <button onclick="setPreset('spirales')">Vortex</button>
+            <button onclick="setPreset('galaxies')">Nébuleuse</button>
+            <button onclick="setPreset('effets')">Soie</button>
+            <button id="rainbow-btn" onclick="toggleRainbow()">
+              <span class="btn-text">🌈 RGB LED</span>
+            </button>
+          </div>
+        </div>
+
+        <div>
+          <div class="sec-title">Rapide</div>
+          <div class="quick-grid">
+            <div class="ctrl">
+              <div class="ctrl-row">
+                <label>Vitesse</label
+                ><span class="val" id="v-speed">0.020</span>
+              </div>
+              <input
+                type="range"
+                id="speed"
+                min="0.001"
+                max="0.1"
+                step="0.001"
+                value="0.02"
+              />
+            </div>
+            <div class="ctrl">
+              <div class="ctrl-row">
+                <label>Amplitude</label><span class="val" id="v-amp">1.20</span>
+              </div>
+              <input
+                type="range"
+                id="amp"
+                min="0.1"
+                max="3.0"
+                step="0.01"
+                value="1.2"
+              />
+            </div>
+            <div class="ctrl">
+              <div class="ctrl-row">
+                <label>Taille Points</label
+                ><span class="val" id="v-size">1.5</span>
+              </div>
+              <input
+                type="range"
+                id="size"
+                min="0.1"
+                max="5.0"
+                step="0.1"
+                value="1.5"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="sec-title">Forme</div>
+          <div class="sec-sub">
+            Paramètres mathématiques avancés de la courbe.
+          </div>
+          <div class="ctrl">
+            <div class="ctrl-row">
+              <label
+                >A (fréquence principale)<span class="hint"
+                  >Impact: détails internes</span
+                ></label
+              ><span class="val" id="v-paramA">40.0</span>
+            </div>
+            <input
+              type="range"
+              id="paramA"
+              min="1"
+              max="100"
+              step="0.1"
+              value="40.0"
+            />
+          </div>
+          <div class="ctrl">
+            <div class="ctrl-row">
+              <label
+                >B (complexité secondaire)<span class="hint"
+                  >Impact: structure globale</span
+                ></label
+              ><span class="val" id="v-paramB">10.0</span>
+            </div>
+            <input
+              type="range"
+              id="paramB"
+              min="1"
+              max="50"
+              step="0.1"
+              value="10.0"
+            />
+          </div>
+          <div class="ctrl">
+            <div class="ctrl-row">
+              <label
+                >C (torsion spatiale)<span class="hint"
+                  >Impact: volume 3D</span
+                ></label
+              ><span class="val" id="v-paramC">0.10</span>
+            </div>
+            <input
+              type="range"
+              id="paramC"
+              min="-2"
+              max="2"
+              step="0.01"
+              value="0.1"
+            />
+          </div>
+        </div>
+
+        <div>
+          <div class="sec-title">Rendu</div>
+          <div class="ctrl">
+            <div class="ctrl-row">
+              <label>Intensité Néon</label
+              ><span class="val" id="v-neon">0.7</span>
+            </div>
+            <input
+              type="range"
+              id="neon"
+              min="0.1"
+              max="2.0"
+              step="0.01"
+              value="0.7"
+            />
+          </div>
+          <div id="color-row" style="margin-top: 8px">
+            <label>Couleur</label>
+            <input type="color" id="color" value="#ffffff" />
+          </div>
+
+          <div id="rainbow-controls" class="off">
+            <div class="sec-title" style="margin-bottom: 6px">Rainbow FX</div>
+            <div class="ctrl">
+              <div class="ctrl-row">
+                <label>Mix Rainbow</label
+                ><span class="val" id="v-rainbowMix">1.00</span>
+              </div>
+              <input
+                type="range"
+                id="rainbowMix"
+                min="0"
+                max="1"
+                step="0.01"
+                value="1.0"
+              />
+            </div>
+            <div class="ctrl">
+              <div class="ctrl-row">
+                <label>Vitesse Rainbow</label
+                ><span class="val" id="v-rainbowSpeed">1.00</span>
+              </div>
+              <input
+                type="range"
+                id="rainbowSpeed"
+                min="0.2"
+                max="3.0"
+                step="0.01"
+                value="1.0"
+              />
+            </div>
+            <div class="ctrl">
+              <div class="ctrl-row">
+                <label>Saturation Rainbow</label
+                ><span class="val" id="v-rainbowSat">1.00</span>
+              </div>
+              <input
+                type="range"
+                id="rainbowSat"
+                min="0"
+                max="1"
+                step="0.01"
+                value="1.0"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="sec-title">Actions</div>
+          <div class="action-grid">
+            <button class="btn-generate" onclick="randomize()">
+              ⚡ Aléatoire
+            </button>
+            <button id="pauseBtn" onclick="togglePause()">⏸ Pause</button>
+            <button onclick="exportPNG()">↓ PNG</button>
+            <button onclick="copyPreset()">⎘ Copier</button>
+            <button onclick="pastePreset()">⇣ Coller</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel-footer">
+        <span>FPS</span>
+        <span id="fps">--</span>
+      </div>
+    </div>
+
+    <div id="toast" role="status" aria-live="polite"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
+    <script id="vertexShader" type="x-shader/x-vertex">
+      uniform float uTime;
+      uniform float uA;
+      uniform float uB;
+      uniform float uC;
+      uniform float uAmp;
+      uniform float uSize;
+      attribute float aIndex;
+      varying float vNorm;
+
+      void main() {
+          vNorm = aIndex / 1000000.0;
+          float t = aIndex * 0.0001;
+
+          float x = sin(t * uA + uTime * 0.1) * cos(t * uB);
+          float y = cos(t * uA - uTime * 0.05) * sin(t * uC);
+          float z = sin(t * uB + uTime * 0.08) * uC;
+
+          x += 0.5 * sin(t * 10.0 + uTime);
+          y += 0.5 * cos(t * 10.0 + uTime);
+
+          vec3 pos = vec3(x, y, z) * uAmp * 30.0;
+          vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
+          gl_PointSize = uSize * (400.0 / -mvPosition.z);
+          gl_Position = projectionMatrix * mvPosition;
+      }
+    </script>
+
+    <script id="fragmentShader" type="x-shader/x-fragment">
+      uniform vec3 uColor;
+      uniform float uNeon;
+      uniform float uRainbow;
+      uniform float uRainbowMix;
+      uniform float uRainbowSpeed;
+      uniform float uRainbowSat;
+      uniform float uTime;
+      varying float vNorm;
+
+        vec3 rainbowClassic(float t) {
+          float x = fract(t) * 6.0;
+          vec3 c0;
+          vec3 c1;
+          float f;
+
+          if (x < 1.0) {
+            c0 = vec3(1.0, 0.0, 0.0);
+            c1 = vec3(1.0, 0.5, 0.0);
+            f = x;
+          } else if (x < 2.0) {
+            c0 = vec3(1.0, 0.5, 0.0);
+            c1 = vec3(1.0, 1.0, 0.0);
+            f = x - 1.0;
+          } else if (x < 3.0) {
+            c0 = vec3(1.0, 1.0, 0.0);
+            c1 = vec3(0.0, 1.0, 0.0);
+            f = x - 2.0;
+          } else if (x < 4.0) {
+            c0 = vec3(0.0, 1.0, 0.0);
+            c1 = vec3(0.0, 0.35, 1.0);
+            f = x - 3.0;
+          } else if (x < 5.0) {
+            c0 = vec3(0.0, 0.35, 1.0);
+            c1 = vec3(0.29, 0.0, 0.51);
+            f = x - 4.0;
+          } else {
+            c0 = vec3(0.29, 0.0, 0.51);
+            c1 = vec3(1.0, 0.0, 0.0);
+            f = x - 5.0;
+          }
+
+          return mix(c0, c1, smoothstep(0.0, 1.0, f));
+        }
+
+      void main() {
+          float d = distance(gl_PointCoord, vec2(0.5));
+          if (d > 0.5) discard;
+
+            float cycle = uTime * (0.017 + (uRainbowSpeed * 0.05));
+            float globalHue  = fract(cycle);
+            float spatialHue = fract(vNorm * 1.4 + cycle);
+            float hue = mix(globalHue, spatialHue, 0.45);
+            vec3 rainbowCol = rainbowClassic(hue);
+            float sat = clamp(uRainbowSat, 0.0, 1.0);
+            rainbowCol = mix(vec3(dot(rainbowCol, vec3(0.299, 0.587, 0.114))), rainbowCol, sat);
+            rainbowCol = pow(rainbowCol, vec3(0.82));
+            rainbowCol = clamp(rainbowCol * 1.24, 0.0, 1.0);
+
+            float rainbowBlend = clamp(uRainbow, 0.0, 1.0);
+            vec3 col = mix(uColor, rainbowCol, rainbowBlend);
+
+          float s = max(0.0, 1.0 - d * 2.0);
+          float alpha = pow(s, 1.5) * uNeon;
+          gl_FragColor = vec4(col * alpha, clamp(alpha, 0.0, 1.0));
+      }
+    </script>
+
+    <script>
+      let scene, camera, renderer, controls, points, uniforms, material;
+      const count = 1000000;
+      let isPaused = false;
+      let rainbowOn = false;
+      let rainbowTarget = 0;
+      let lastFpsTime = performance.now();
+      let frameCount = 0;
+      let toastTimer;
+
+      function init() {
+        scene = new THREE.Scene();
+        camera = new THREE.PerspectiveCamera(
+          60,
+          window.innerWidth / window.innerHeight,
+          0.1,
+          1000,
+        );
+        camera.position.z = 85;
+
+        renderer = new THREE.WebGLRenderer({
+          antialias: true,
+          preserveDrawingBuffer: true,
+        });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        document
+          .getElementById("canvas-container")
+          .appendChild(renderer.domElement);
+
+        controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.05;
+
+        const geo = new THREE.BufferGeometry();
+        const indices = new Float32Array(count);
+        for (let i = 0; i < count; i++) indices[i] = i;
+        geo.setAttribute("aIndex", new THREE.BufferAttribute(indices, 1));
+        geo.setAttribute(
+          "position",
+          new THREE.BufferAttribute(new Float32Array(count * 3), 3),
+        );
+
+        uniforms = {
+          uTime: { value: 0 },
+          uA: { value: 40.0 },
+          uB: { value: 10.0 },
+          uC: { value: 0.1 },
+          uAmp: { value: 1.2 },
+          uSize: { value: 1.5 },
+          uNeon: { value: 0.7 },
+          uColor: { value: new THREE.Color(0xffffff) },
+          uRainbow: { value: 0.0 },
+          uRainbowMix: { value: 1.0 },
+          uRainbowSpeed: { value: 1.0 },
+          uRainbowSat: { value: 1.0 },
+        };
+
+        material = new THREE.ShaderMaterial({
+          uniforms,
+          vertexShader: document.getElementById("vertexShader").textContent,
+          fragmentShader: document.getElementById("fragmentShader").textContent,
+          transparent: true,
+          blending: THREE.AdditiveBlending,
+          depthWrite: false,
+        });
+
+        points = new THREE.Points(geo, material);
+        scene.add(points);
+        setupControls();
+        animate();
+      }
+
+      function setupControls() {
+        const sliders = [
+          { id: "amp", u: "uAmp", d: 2 },
+          { id: "paramA", u: "uA", d: 1 },
+          { id: "paramB", u: "uB", d: 1 },
+          { id: "paramC", u: "uC", d: 2 },
+          { id: "size", u: "uSize", d: 1 },
+          { id: "neon", u: "uNeon", d: 2 },
+          { id: "speed", u: null, d: 3 },
+          { id: "rainbowMix", u: "uRainbowMix", d: 2 },
+          { id: "rainbowSpeed", u: "uRainbowSpeed", d: 2 },
+          { id: "rainbowSat", u: "uRainbowSat", d: 2 },
+        ];
+        sliders.forEach(({ id, u, d }) => {
+          const el = document.getElementById(id);
+          if (!el) return;
+          el.addEventListener("input", (e) => {
+            const v = parseFloat(e.target.value);
+            if (u && uniforms[u]) uniforms[u].value = v;
+            const lbl = document.getElementById("v-" + id);
+            if (lbl) lbl.textContent = v.toFixed(d);
+          });
+        });
+
+        document.getElementById("color").addEventListener("input", (e) => {
+          if (!rainbowOn) uniforms.uColor.value.set(e.target.value);
+        });
+      }
+
+      function showToast(message) {
+        const toast = document.getElementById("toast");
+        toast.textContent = message;
+        toast.classList.add("show");
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => {
+          toast.classList.remove("show");
+        }, 1400);
+      }
+
+      function refreshStatusChips() {
+        const rainbowChip = document.getElementById("chip-rainbow");
+        const stateChip = document.getElementById("chip-state");
+
+        rainbowChip.textContent = rainbowOn ? "Rainbow on" : "Rainbow off";
+        rainbowChip.classList.toggle("on", rainbowOn);
+
+        stateChip.textContent = isPaused ? "Paused" : "Live";
+        stateChip.classList.toggle("on", !isPaused);
+      }
+
+      function toggleRainbow() {
+        rainbowOn = !rainbowOn;
+        rainbowTarget = rainbowOn ? 1.0 : 0.0;
+        if (rainbowOn) {
+          uniforms.uRainbowMix.value = 1.0;
+          const mixInput = document.getElementById("rainbowMix");
+          mixInput.value = "1";
+          document.getElementById("v-rainbowMix").textContent = "1.00";
+        }
+        if (material) {
+          material.blending = THREE.AdditiveBlending;
+          material.needsUpdate = true;
+        }
+        document
+          .getElementById("rainbow-btn")
+          .classList.toggle("on", rainbowOn);
+        document
+          .getElementById("rainbow-controls")
+          .classList.toggle("off", !rainbowOn);
+        const cr = document.getElementById("color-row");
+        cr.style.opacity = rainbowOn ? "0.55" : "1";
+        refreshStatusChips();
+        showToast(rainbowOn ? "Rainbow classique active" : "Rainbow desactive");
+      }
+
+      function collectPresetValues() {
+        return {
+          amp: parseFloat(document.getElementById("amp").value),
+          speed: parseFloat(document.getElementById("speed").value),
+          paramA: parseFloat(document.getElementById("paramA").value),
+          paramB: parseFloat(document.getElementById("paramB").value),
+          paramC: parseFloat(document.getElementById("paramC").value),
+          size: parseFloat(document.getElementById("size").value),
+          neon: parseFloat(document.getElementById("neon").value),
+          rainbowMix: parseFloat(document.getElementById("rainbowMix").value),
+          rainbowSpeed: parseFloat(
+            document.getElementById("rainbowSpeed").value,
+          ),
+          rainbowSat: parseFloat(document.getElementById("rainbowSat").value),
+          color: document.getElementById("color").value,
+          rainbowOn,
+        };
+      }
+
+      function applyPresetValues(values) {
+        const ids = [
+          "amp",
+          "speed",
+          "paramA",
+          "paramB",
+          "paramC",
+          "size",
+          "neon",
+          "rainbowMix",
+          "rainbowSpeed",
+          "rainbowSat",
+        ];
+        ids.forEach((id) => {
+          if (values[id] == null) return;
+          const el = document.getElementById(id);
+          el.value = values[id];
+          el.dispatchEvent(new Event("input"));
+        });
+
+        if (values.color) {
+          document.getElementById("color").value = values.color;
+          uniforms.uColor.value.set(values.color);
+        }
+
+        if (Boolean(values.rainbowOn) !== rainbowOn) {
+          toggleRainbow();
+        }
+      }
+
+      async function copyPreset() {
+        const payload = JSON.stringify(collectPresetValues());
+        try {
+          await navigator.clipboard.writeText(payload);
+          showToast("Preset copie");
+        } catch (_err) {
+          prompt("Copie ce preset:", payload);
+        }
+      }
+
+      async function pastePreset() {
+        try {
+          const payload = await navigator.clipboard.readText();
+          const parsed = JSON.parse(payload);
+          applyPresetValues(parsed);
+          showToast("Preset colle");
+        } catch (_err) {
+          const payload = prompt("Colle un preset JSON:");
+          if (!payload) return;
+          try {
+            applyPresetValues(JSON.parse(payload));
+            showToast("Preset colle");
+          } catch (__err) {
+            alert("Preset invalide");
+          }
+        }
+      }
+
+      function setPreset(p) {
+        const sets = {
+          nids: [1.5, 40, 10, 0.1],
+          spirales: [1.0, 15, 45, 0.5],
+          galaxies: [2.0, 80, 5, 1.2],
+          effets: [1.2, 25, 25, -0.8],
+        };
+        const s = sets[p];
+        if (!s) return;
+        ["amp", "paramA", "paramB", "paramC"].forEach((id, i) => {
+          const el = document.getElementById(id);
+          el.value = s[i];
+          el.dispatchEvent(new Event("input"));
+        });
+      }
+
+      function randomize() {
+        const r = (a, b) => Math.random() * (b - a) + a;
+        [
+          ["amp", r(0.5, 2.5)],
+          ["paramA", r(5, 90)],
+          ["paramB", r(5, 45)],
+          ["paramC", r(-1.5, 1.5)],
+        ].forEach(([id, v]) => {
+          const el = document.getElementById(id);
+          el.value = v;
+          el.dispatchEvent(new Event("input"));
+        });
+        showToast("Nouveau set aleatoire");
+      }
+
+      function togglePause() {
+        isPaused = !isPaused;
+        document.getElementById("pauseBtn").textContent = isPaused
+          ? "▶ Play"
+          : "⏸ Pause";
+        refreshStatusChips();
+        showToast(isPaused ? "Animation en pause" : "Animation relancee");
+        if (!isPaused) animate();
+      }
+
+      function exportPNG() {
+        renderer.render(scene, camera);
+        const a = document.createElement("a");
+        a.download = `aetheria-${Date.now()}.png`;
+        a.href = renderer.domElement.toDataURL("image/png");
+        a.click();
+      }
+
+      function reset() {
+        location.reload();
+      }
+
+      function animate() {
+        if (isPaused) return;
+        requestAnimationFrame(animate);
+        uniforms.uTime.value += parseFloat(
+          document.getElementById("speed").value,
+        );
+        uniforms.uRainbow.value +=
+          (rainbowTarget - uniforms.uRainbow.value) * 0.08;
+        controls.update();
+        renderer.render(scene, camera);
+
+        frameCount++;
+        const now = performance.now();
+        if (now - lastFpsTime >= 600) {
+          document.getElementById("fps").textContent = Math.round(
+            (frameCount * 1000) / (now - lastFpsTime),
+          );
+          frameCount = 0;
+          lastFpsTime = now;
+        }
+      }
+
+      window.addEventListener("resize", () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+      });
+
+      document.getElementById("panel-toggle").addEventListener("click", () => {
+        const panel = document.getElementById("ui-panel");
+        panel.classList.toggle("collapsed");
+      });
+
+      window.addEventListener("keydown", (e) => {
+        if (
+          e.target &&
+          (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA")
+        )
+          return;
+
+        if (e.code === "Space") {
+          e.preventDefault();
+          togglePause();
+        } else if (e.key.toLowerCase() === "r") {
+          toggleRainbow();
+        } else if (e.key.toLowerCase() === "a") {
+          randomize();
+        }
+      });
+
+      refreshStatusChips();
+      init();
+    </script>
+  </body>
+</html>

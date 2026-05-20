@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Graph Explorer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg: #0a0a0f;
+            --surface: #12121a;
+            --border: rgba(255,255,255,0.06);
+            --accent: #7c6af7;
+            --accent2: #f76ac8;
+            --visited: #2deca8;
+            --text: #e8e8f0;
+            --muted: rgba(232,232,240,0.35);
+        }
+
+        body {
+            font-family: 'Syne', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            overflow: hidden;
+        }
+
+        /* Ambient glow background */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background:
+                radial-gradient(ellipse 60% 50% at 30% 20%, rgba(124,106,247,0.12) 0%, transparent 60%),
+                radial-gradient(ellipse 50% 40% at 75% 80%, rgba(247,106,200,0.08) 0%, transparent 60%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .wrapper {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 32px;
+        }
+
+        /* Header */
+        header {
+            text-align: center;
+        }
+
+        header .label {
+            font-family: 'Space Mono', monospace;
+            font-size: 10px;
+            letter-spacing: 0.25em;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 8px;
+        }
+
+        header h1 {
+            font-size: clamp(24px, 5vw, 36px);
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, var(--text) 0%, var(--muted) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Graph panel */
+        .graph-panel {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 12px;
+            position: relative;
+            box-shadow:
+                0 0 0 1px rgba(124,106,247,0.08),
+                0 32px 64px rgba(0,0,0,0.5),
+                inset 0 1px 0 rgba(255,255,255,0.05);
+        }
+
+        svg {
+            display: block;
+            border-radius: 12px;
+            overflow: visible;
+        }
+
+        /* Edge base */
+        .edge {
+            stroke: rgba(255,255,255,0.08);
+            stroke-width: 1.5;
+            transition: stroke 0.5s ease, stroke-width 0.5s ease, filter 0.5s ease;
+        }
+        .edge.lit {
+            stroke: var(--accent);
+            stroke-width: 2.5;
+            filter: drop-shadow(0 0 6px rgba(124,106,247,0.7));
+        }
+
+        /* Arrow markers */
+        .arrow { fill: rgba(255,255,255,0.08); }
+        .arrow-lit { fill: var(--accent); }
+
+        /* Node groups */
+        .node-group { cursor: pointer; }
+
+        .node-group .ring {
+            fill: none;
+            stroke: rgba(255,255,255,0.06);
+            stroke-width: 1;
+            transition: stroke 0.4s, stroke-width 0.4s, opacity 0.4s;
+        }
+        .node-group .bg {
+            fill: #1a1a26;
+            stroke: rgba(255,255,255,0.1);
+            stroke-width: 1.5;
+            transition: fill 0.4s, stroke 0.4s;
+        }
+        .node-group .label {
+            font-family: 'Space Mono', monospace;
+            font-size: 15px;
+            font-weight: 700;
+            fill: rgba(232,232,240,0.5);
+            text-anchor: middle;
+            dominant-baseline: middle;
+            pointer-events: none;
+            transition: fill 0.4s;
+        }
+        .node-group .index-label {
+            font-family: 'Space Mono', monospace;
+            font-size: 8px;
+            fill: var(--muted);
+            text-anchor: middle;
+            dominant-baseline: middle;
+            pointer-events: none;
+            transition: fill 0.4s;
+        }
+
+        /* Active / visited states */
+        .node-group.active .bg {
+            fill: var(--accent);
+            stroke: #a898ff;
+            filter: drop-shadow(0 0 16px rgba(124,106,247,0.8));
+        }
+        .node-group.active .label { fill: #fff; }
+        .node-group.active .ring {
+            stroke: rgba(124,106,247,0.4);
+            stroke-width: 2;
+            opacity: 1;
+        }
+
+        .node-group.visited .bg {
+            fill: rgba(45,236,168,0.15);
+            stroke: var(--visited);
+        }
+        .node-group.visited .label { fill: var(--visited); }
+        .node-group.visited .ring {
+            stroke: rgba(45,236,168,0.25);
+            opacity: 1;
+        }
+
+        /* Hover on idle nodes */
+        .node-group:not(.active):not(.visited):hover .bg {
+            fill: #22223a;
+            stroke: rgba(255,255,255,0.25);
+        }
+        .node-group:not(.active):not(.visited):hover .label {
+            fill: var(--text);
+        }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .btn {
+            font-family: 'Syne', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            padding: 12px 28px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: opacity 0.2s, transform 0.15s;
+        }
+
+        .btn:active { transform: scale(0.97); }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent), #9b6af7);
+            color: #fff;
+            box-shadow: 0 4px 20px rgba(124,106,247,0.4), inset 0 1px 0 rgba(255,255,255,0.15);
+        }
+        .btn-primary:hover { opacity: 0.88; }
+        .btn-primary:disabled { opacity: 0.4; cursor: default; }
+
+        .btn-ghost {
+            background: transparent;
+            color: var(--muted);
+            border: 1px solid var(--border);
+        }
+        .btn-ghost:hover { background: rgba(255,255,255,0.04); color: var(--text); }
+
+        /* Step counter */
+        .step-info {
+            font-family: 'Space Mono', monospace;
+            font-size: 11px;
+            color: var(--muted);
+            letter-spacing: 0.1em;
+            text-align: center;
+            min-height: 18px;
+            transition: color 0.3s;
+        }
+        .step-info.active { color: var(--accent); }
+
+        /* Speed control */
+        .speed-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-family: 'Space Mono', monospace;
+            font-size: 10px;
+            color: var(--muted);
+            letter-spacing: 0.1em;
+        }
+
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 80px;
+            height: 3px;
+            background: var(--border);
+            border-radius: 2px;
+            outline: none;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 12px;
+            height: 12px;
+            background: var(--accent);
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 6px rgba(124,106,247,0.6);
+        }
+    </style>
+</head>
+<body>
+
+<div class="wrapper">
+
+    <header>
+        <div class="label">Structure relationnelle</div>
+        <h1>Graph Explorer</h1>
+    </header>
+
+    <div class="graph-panel">
+        <svg id="graph-svg" width="420" height="380">
+            <defs>
+                <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+                    <path d="M0,0 L0,6 L8,3 z" class="arrow"/>
+                </marker>
+                <marker id="arrow-lit" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+                    <path d="M0,0 L0,6 L8,3 z" class="arrow-lit"/>
+                </marker>
+                <filter id="glow">
+                    <feGaussianBlur stdDeviation="3" result="blur"/>
+                    <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+                </filter>
+            </defs>
+            <g id="edges-layer"></g>
+            <g id="nodes-layer"></g>
+        </svg>
+    </div>
+
+    <div class="step-info" id="step-info">— Prêt —</div>
+
+    <div class="controls">
+        <button class="btn btn-ghost" onclick="reset()">Réinitialiser</button>
+        <button class="btn btn-primary" id="run-btn" onclick="runAnimation()">Lancer le parcours</button>
+    </div>
+
+    <div class="speed-row">
+        <span>VITESSE</span>
+        <input type="range" id="speed" min="200" max="1500" value="800" step="100">
+        <span id="speed-label">800ms</span>
+    </div>
+
+</div>
+
+<script>
+    // ── Data ──────────────────────────────────────────────
+    const nodes = {
+        "A": { x: 210, y: 55,  desc: "Source" },
+        "B": { x: 360, y: 300, desc: "Relais"  },
+        "C": { x:  60, y: 300, desc: "Cible"   }
+    };
+
+    const edges = [
+        { from: "A", to: "B" },
+        { from: "B", to: "C" },
+        { from: "C", to: "A" }
+    ];
+
+    const R = 28;
+    const RING_R = 42;
+    const traversal = ["A", "B", "C"];
+
+    let running = false;
+
+    const nodesLayer = document.getElementById('nodes-layer');
+    const edgesLayer = document.getElementById('edges-layer');
+    const stepInfo   = document.getElementById('step-info');
+    const runBtn     = document.getElementById('run-btn');
+    const speedSlider = document.getElementById('speed');
+    const speedLabel  = document.getElementById('speed-label');
+
+    speedSlider.addEventListener('input', () => {
+        speedLabel.textContent = speedSlider.value + 'ms';
+    });
+
+    // ── Build edges ───────────────────────────────────────
+    const edgeEls = {};
+
+    edges.forEach(({ from, to }) => {
+        const s = nodes[from], e = nodes[to];
+
+        // Shorten line so arrow doesn't overlap circle
+        const dx = e.x - s.x, dy = e.y - s.y;
+        const len = Math.sqrt(dx*dx + dy*dy);
+        const ux = dx/len, uy = dy/len;
+
+        const x1 = s.x + ux * (R + 4);
+        const y1 = s.y + uy * (R + 4);
+        const x2 = e.x - ux * (R + 12);
+        const y2 = e.y - uy * (R + 12);
+
+        const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+        line.setAttribute("x1", x1); line.setAttribute("y1", y1);
+        line.setAttribute("x2", x2); line.setAttribute("y2", y2);
+        line.setAttribute("class", "edge");
+        line.setAttribute("marker-end", "url(#arrow)");
+        edgesLayer.appendChild(line);
+
+        edgeEls[`${from}-${to}`] = line;
+    });
+
+    // ── Build nodes ───────────────────────────────────────
+    Object.entries(nodes).forEach(([id, { x, y, desc }], i) => {
+        const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+        g.setAttribute("class", "node-group");
+        g.setAttribute("id", `node-${id}`);
+
+        // Outer ring (pulse indicator)
+        const ring = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        ring.setAttribute("cx", x); ring.setAttribute("cy", y);
+        ring.setAttribute("r", RING_R);
+        ring.setAttribute("class", "ring");
+
+        // Main circle
+        const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        circle.setAttribute("cx", x); circle.setAttribute("cy", y);
+        circle.setAttribute("r", R);
+        circle.setAttribute("class", "bg");
+
+        // Node ID
+        const label = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        label.setAttribute("x", x); label.setAttribute("y", y);
+        label.setAttribute("class", "label");
+        label.textContent = id;
+
+        // Index badge
+        const idx = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        idx.setAttribute("x", x); idx.setAttribute("y", y + RING_R + 12);
+        idx.setAttribute("class", "index-label");
+        idx.textContent = desc.toUpperCase();
+
+        g.appendChild(ring);
+        g.appendChild(circle);
+        g.appendChild(label);
+        g.appendChild(idx);
+        nodesLayer.appendChild(g);
+    });
+
+    // ── Animation ─────────────────────────────────────────
+    function getEl(id) { return document.getElementById(`node-${id}`); }
+    function delay(ms)  { return new Promise(r => setTimeout(r, ms)); }
+
+    function setStepInfo(text, isActive = false) {
+        stepInfo.textContent = text;
+        stepInfo.className = 'step-info' + (isActive ? ' active' : '');
+    }
+
+    function reset() {
+        if (running) return;
+        document.querySelectorAll('.node-group').forEach(n => {
+            n.classList.remove('visited', 'active');
+        });
+        Object.values(edgeEls).forEach(e => {
+            e.classList.remove('lit');
+            e.setAttribute('marker-end', 'url(#arrow)');
+        });
+        setStepInfo('— Prêt —', false);
+    }
+
+    async function runAnimation() {
+        if (running) return;
+        running = true;
+        runBtn.disabled = true;
+        reset();
+
+        const speed = parseInt(speedSlider.value);
+
+        setStepInfo('Initialisation…', true);
+        await delay(400);
+
+        for (let i = 0; i < traversal.length; i++) {
+            const cur  = traversal[i];
+            const next = traversal[(i + 1) % traversal.length];
+
+            // Activate current node
+            getEl(cur).classList.add('active');
+            setStepInfo(`Visite → Nœud ${cur}`, true);
+            await delay(speed * 0.6);
+
+            // Mark visited, light the edge
+            getEl(cur).classList.remove('active');
+            getEl(cur).classList.add('visited');
+
+            const edgeKey = `${cur}-${next}`;
+            if (edgeEls[edgeKey]) {
+                edgeEls[edgeKey].classList.add('lit');
+                edgeEls[edgeKey].setAttribute('marker-end', 'url(#arrow-lit)');
+            }
+
+            setStepInfo(`Arête ${cur} → ${next}`, true);
+            await delay(speed * 0.4);
+        }
+
+        setStepInfo('✓ Parcours terminé', false);
+        running = false;
+        runBtn.disabled = false;
+    }
+</script>
+
+</body>
+</html>

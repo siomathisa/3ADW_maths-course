@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Lancer de pièce</title>
+  <style>
+    body {
+      font-family: monospace;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: lightgray;
+      background-color: rgb(58, 58, 58);
+    }
+    button {
+      padding: 10px 24px;
+      font-size: 1rem;
+      cursor: pointer;
+      margin-bottom: 24px;
+      border-radius: 8px;
+      background-color: rgb(244, 244, 214);
+      transition: 0,8s;
+    }
+    button:hover {
+      background-color: rgb(200, 200, 174);
+    }
+    p {
+      font-size: 1.1rem;
+    }
+  </style>
+</head>
+<body>
+  <h2>Lancer de pièce</h2>
+  <button onclick="lancer()">Lancer 10 000 fois</button>
+  <p id="success"></p>
+  <p id="frequence"></p>
+
+  <script>
+    function lancer() {
+      let success = 0;
+      i = 1;
+      while (i < 10000) {
+        number = Math.random();
+        if (number > 0.5) {
+          success++;
+        }
+        i++;
+      }
+      frequence = success / 10000;
+      document.getElementById('success').textContent = 'Succès : ' + success;
+      document.getElementById('frequence').textContent = 'Fréquence : ' + frequence;
+    }
+  </script>
+</body>
+</html>

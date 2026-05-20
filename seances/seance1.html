@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Séance 1 — Maths × Code</title>
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+ 
+  <div class="bg-canvas">
+    <canvas id="bg-canvas"></canvas>
+    <div class="glow glow-1"></div>
+    <div class="glow glow-2"></div>
+    <div class="glow glow-3"></div>
+  </div>
+ 
+  <div class="seance-wrap">
+ 
+    <header class="seance-header fade-up">
+      <a href="../index.html" class="seance-back">← Retour</a>
+      <div class="seance-meta">
+        <span class="seance-num-big">Séance 01</span>
+        <span class="card-badge done">Terminé</span>
+      </div>
+      <h1 class="seance-title">Complexes, probabilités &amp; vecteurs</h1>
+      <div class="seance-tags">
+        <span class="tag">Mandelbrot</span>
+        <span class="tag">Ensembles</span>
+        <span class="tag">Nombres complexes</span>
+        <span class="tag">Probabilités</span>
+        <span class="tag">Vecteurs</span>
+        <span class="tag">Histoire web</span>
+      </div>
+    </header>
+ 
+    <!-- TOPICS -->
+    <div class="seance-section-title fade-up">Notions abordées</div>
+ 
+    <div class="topics-grid">
+ 
+      <div class="topic-block fade-up delay-1">
+        <span class="topic-block-icon">🌀</span>
+        <h3>Ensemble de Mandelbrot</h3>
+        <p>
+          L'ensemble de Mandelbrot est l'ensemble des nombres complexes <code>c</code> pour lesquels
+          la suite définie par itération ne diverge pas vers l'infini.
+        </p>
+        <div class="formula-box">z<sub>n+1</sub> = z<sub>n</sub>² + c &nbsp;,&nbsp; z<sub>0</sub> = 0</div>
+        <p style="margin-top:12px;">
+          On colorie chaque pixel selon le nombre d'itérations nécessaires avant que <code>|z|</code> dépasse 2.
+          Les points qui ne divergent jamais appartiennent à l'ensemble.
+        </p>
+      </div>
+ 
+      <div class="topic-block fade-up delay-2">
+        <span class="topic-block-icon">𝕊</span>
+        <h3>Les ensembles</h3>
+        <p>
+          Un ensemble est une collection d'objets distincts. On distingue :
+        </p>
+        <p style="margin-top: 10px;">
+          <code>ℕ</code> entiers naturels<br>
+          <code>ℤ</code> entiers relatifs<br>
+          <code>ℚ</code> rationnels<br>
+          <code>ℝ</code> réels<br>
+          <code>ℂ</code> complexes
+        </p>
+        <p style="margin-top:10px;">
+          Opérations : union <code>∪</code>, intersection <code>∩</code>, complément, inclusion <code>⊂</code>.
+        </p>
+      </div>
+ 
+      <div class="topic-block fade-up delay-3">
+        <span class="topic-block-icon">ℂ</span>
+        <h3>Nombres complexes</h3>
+        <p>
+          Un nombre complexe s'écrit <code>z = a + bi</code> avec <code>a</code> la partie réelle
+          et <code>b</code> la partie imaginaire, où <code>i² = −1</code>.
+        </p>
+        <p style="margin-top:10px;">
+          Le module est <code>|z| = √(a² + b²)</code>.<br>
+          On peut le représenter dans le plan complexe (plan d'Argand) avec l'axe réel en abscisse
+          et l'axe imaginaire en ordonnée.
+        </p>
+        <div class="formula-box">z · z̄ = |z|²</div>
+      </div>
+ 
+      <div class="topic-block fade-up delay-4">
+        <span class="topic-block-icon">🎲</span>
+        <h3>Probabilités</h3>
+        <p>
+          La probabilité mesure la vraisemblance d'un événement. Pour un espace équiprobable :
+        </p>
+        <div class="formula-box">P(A) = card(A) / card(Ω)</div>
+        <p style="margin-top:10px;">
+          Propriétés : <code>0 ≤ P(A) ≤ 1</code>, <code>P(Ω) = 1</code>, <code>P(∅) = 0</code>.<br>
+          Complément : <code>P(Ā) = 1 − P(A)</code>.<br>
+          Union : <code>P(A∪B) = P(A) + P(B) − P(A∩B)</code>.
+        </p>
+        <p style="margin-top:10px; font-style:italic; font-size:12px; color:var(--muted);">
+          → Exercice : simulation de lancer de pièce pour estimer P(pile).
+        </p>
+      </div>
+ 
+      <div class="topic-block fade-up delay-5">
+        <span class="topic-block-icon">↗</span>
+        <h3>Vecteurs</h3>
+        <p>
+          Un vecteur est défini par une direction, un sens et une norme. En 2D :
+        </p>
+        <div class="formula-box">v⃗ = (vx, vy)</div>
+        <p style="margin-top:10px;">
+          Déplacement d'un point <code>A(x, y)</code> par un vecteur <code>v⃗</code> :
+        </p>
+        <div class="formula-box">A' = (x + vx, y + vy)</div>
+        <p style="margin-top:10px; font-style:italic; font-size:12px; color:var(--muted);">
+          → Exercice : déplacement interactif d'un point dans un canvas.
+        </p>
+      </div>
+ 
+      <div class="topic-block fade-up delay-6">
+        <span class="topic-block-icon">🌐</span>
+        <h3>Histoire du web</h3>
+        <p>
+          <code>1989</code> — Tim Berners-Lee invente le World Wide Web au CERN.<br>
+          <code>1991</code> — Premier site web public.<br>
+          <code>1993</code> — Navigateur Mosaic, démocratisation.<br>
+          <code>1995</code> — JavaScript créé par Brendan Eich en 10 jours.<br>
+          <code>1996</code> — CSS1 standardisé par le W3C.<br>
+          <code>2004</code> — Firefox, début de la modernisation.<br>
+          <code>2008</code> — Chrome &amp; V8, performances JS décuplées.<br>
+          <code>2015</code> — ES6 / ES2015, JavaScript moderne.
+        </p>
+      </div>
+ 
+    </div>
+ 
+    <!-- EXERCICES LIÉS -->
+    <div class="seance-section-title fade-up">Exercices associés</div>
+ 
+    <a href="../exos/deplacement-vecteur.html" target="_blank" class="exo-card-link fade-up delay-1">
+      <div class="exo-icon">⟶</div>
+      <div>
+        <div class="exo-name">Déplacement vecteur</div>
+        <div class="exo-desc">Déplacement d'un point dans le plan suivant un vecteur</div>
+      </div>
+      <span class="card-arrow">→</span>
+    </a>
+ 
+    <a href="../exos/lancer-piece.html" target="_blank" class="exo-card-link fade-up delay-2">
+      <div class="exo-icon">⚄</div>
+      <div>
+        <div class="exo-name">Lancer de pièce</div>
+        <div class="exo-desc">Simulation de probabilités par lancer de pièce</div>
+      </div>
+      <span class="card-arrow">→</span>
+    </a>
+ 
+    <a href="../exos/lancer-piece-claude.html" target="_blank" class="exo-card-link fade-up delay-3">
+      <div class="exo-icon">✦</div>
+      <div>
+        <div class="exo-name">Lancer de pièce <span style="color:var(--accent2)">× Claude</span></div>
+        <div class="exo-desc">Version augmentée générée avec Claude AI</div>
+      </div>
+      <span class="card-arrow">→</span>
+    </a>
+ 
+    <footer class="seance-footer fade-up">
+      <a href="../index.html" class="seance-back" style="margin-bottom:0">← Toutes les séances</a>
+      <a href="seance2.html" class="seance-back" style="margin-bottom:0">Séance 2 →</a>
+    </footer>
+ 
+  </div>
+ 
+  <script src="../script.js"></script>
+</body>
+</html>
+ 

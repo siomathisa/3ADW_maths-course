@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Maths × Code</title>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Orbitron:wght@400;700;900&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div id="splash">
+      <div class="splash-inner">
+        <p class="splash-label">MATHS × CODE — 2026</p>
+        <h2 class="splash-title">Enter the website<span class="splash-q">&thinsp;?</span></h2>
+        <button id="splash-yes">YES</button>
+      </div>
+    </div>
+
+    <div class="bg-canvas">
+      <canvas id="bg-canvas"></canvas>
+      <div class="glow glow-1"></div>
+      <div class="glow glow-2"></div>
+      <div class="glow glow-3"></div>
+    </div>
+
+    <div class="site-wrap">
+      <header>
+        <div class="logo fade-up">
+          <span class="logo-label">Mathis Vidueira · 2026</span>
+          <h1>Maths × Code</h1>
+        </div>
+        <nav class="fade-up delay-1">
+          <a href="#">Accueil</a>
+          <a href="#seances">Séances</a>
+          <a href="#exos">Exercices</a>
+        </nav>
+      </header>
+
+      <div class="formula-ticker fade-up delay-2" aria-hidden="true">
+        <div class="ticker-inner">
+          <span>z<sub>n+1</sub> = z<sub>n</sub>² + c</span>
+          <span class="dot">·</span>
+          <span>P(A∪B) = P(A) + P(B) − P(A∩B)</span>
+          <span class="dot">·</span>
+          <span>v⃗ = (x, y)</span>
+          <span class="dot">·</span>
+          <span>M[i][j]</span>
+          <span class="dot">·</span>
+          <span>G = (V, E)</span>
+          <span class="dot">·</span>
+          <span>H(n) ≤ H*(n)</span>
+          <span class="dot">·</span>
+          <!-- duplicate for seamless loop -->
+          <span>z<sub>n+1</sub> = z<sub>n</sub>² + c</span>
+          <span class="dot">·</span>
+          <span>P(A∪B) = P(A) + P(B) − P(A∩B)</span>
+          <span class="dot">·</span>
+          <span>v⃗ = (x, y)</span>
+          <span class="dot">·</span>
+          <span>M[i][j]</span>
+          <span class="dot">·</span>
+          <span>G = (V, E)</span>
+          <span class="dot">·</span>
+          <span>H(n) ≤ H*(n)</span>
+          <span class="dot">·</span>
+        </div>
+      </div>
+
+      <!-- SÉANCES -->
+      <section id="seances">
+        <div class="section-head fade-up delay-2">
+          <span class="section-index">01 —</span>
+          <h2>Séances</h2>
+        </div>
+
+        <div class="seances-grid">
+          <a
+            href="seances/seance1.html"
+            target="_blank"
+            class="card fade-up delay-3"
+          >
+            <div class="card-header">
+              <span class="card-num">01</span>
+              <span class="card-badge done">Terminé</span>
+            </div>
+            <div class="card-title">Complexes, probabilités &amp; vecteurs</div>
+            <div class="card-topics">
+              <span class="tag">Mandelbrot</span>
+              <span class="tag">z² + c</span>
+              <span class="tag">Ensembles</span>
+              <span class="tag">Complexes</span>
+              <span class="tag">Probabilités</span>
+              <span class="tag">Vecteurs</span>
+              <span class="tag">Histoire web</span>
+            </div>
+            <span class="card-arrow">→</span>
+          </a>
+
+          <a
+            href="seances/seance2.html"
+            target="_blank"
+            class="card fade-up delay-4"
+          >
+            <div class="card-header">
+              <span class="card-num">02</span>
+              <span class="card-badge done">Terminé</span>
+            </div>
+            <div class="card-title">Heuristiques, matrices &amp; graphes</div>
+            <div class="card-topics">
+              <span class="tag">9 pts / 4 droites</span>
+              <span class="tag">Heuristiques</span>
+              <span class="tag">Matrices</span>
+              <span class="tag">Graphes</span>
+              <span class="tag">Parcours</span>
+            </div>
+            <span class="card-arrow">→</span>
+          </a>
+
+          <a
+            href="seances/seance3.html"
+            target="_blank"
+            class="card fade-up delay-5"
+          >
+            <div class="card-header">
+              <span class="card-num">03</span>
+              <span class="card-badge" style="background:rgba(251,191,36,0.15);color:#fbbf24;border-color:rgba(251,191,36,0.3);">En cours</span>
+            </div>
+            <div class="card-title">Probabilités conditionnelles &amp; projet</div>
+            <div class="card-topics">
+              <span class="tag">Bayes</span>
+              <span class="tag">Probabilités conditionnelles</span>
+              <span class="tag">Data &amp; Décision</span>
+              <span class="tag">Projet</span>
+            </div>
+            <span class="card-arrow">→</span>
+          </a>
+
+          <div class="card fade-up delay-6">
+            <div class="card-header">
+              <span class="card-num">04</span>
+              <span class="card-badge dst">DST</span>
+            </div>
+            <div class="card-title">Devoir sur table · Fascicule</div>
+            <div class="card-desc">DST sur le fascicule de la séance et soutenances intermédiaires</div>
+            <a href="seances/dst-s4.pdf" download class="btn-download">⬇ Télécharger le sujet</a>
+          </div>
+
+          <a
+            href="seances/seance5.html"
+            target="_blank"
+            class="card card-locked fade-up delay-6"
+          >
+            <div class="card-header">
+              <span class="card-num">05</span>
+              <span class="card-badge">À venir</span>
+            </div>
+            <div class="card-title">—</div>
+            <span class="card-arrow" style="opacity: 0.3">→</span>
+          </a>
+        </div>
+      </section>
+
+      <!-- EXERCICES -->
+      <section id="exos">
+        <div class="section-head fade-up">
+          <span class="section-index">02 —</span>
+          <h2>Exercices</h2>
+        </div>
+
+        <div class="exos-list">
+          <a
+            href="exos/deplacement-vecteur.html"
+            target="_blank"
+            class="exo-row fade-up delay-2"
+          >
+            <div class="exo-icon">⟶</div>
+            <div class="exo-info">
+              <div class="exo-name">Déplacement vecteur</div>
+              <div class="exo-desc">
+                Déplacement d'un point dans le plan suivant un vecteur
+              </div>
+            </div>
+            <div class="exo-meta">
+              <span class="exo-tag">Séance 1</span>
+              <span class="exo-link">Ouvrir →</span>
+            </div>
+          </a>
+
+          <a
+            href="exos/lancer-piece.html"
+            target="_blank"
+            class="exo-row fade-up delay-3"
+          >
+            <div class="exo-icon">⚄</div>
+            <div class="exo-info">
+              <div class="exo-name">Lancer de pièce <span style="color: var(--accent2)">à la main</span></div>
+              <div class="exo-desc">
+                Simulation de probabilités par lancer de pièce codée à la main
+              </div>
+            </div>
+            <div class="exo-meta">
+              <span class="exo-tag">Séance 1</span>
+              <span class="exo-link">Ouvrir →</span>
+            </div>
+          </a>
+
+          <a
+            href="exos/lancer-piece-claude.html"
+            target="_blank"
+            class="exo-row fade-up delay-4"
+          >
+            <div class="exo-icon">✦</div>
+            <div class="exo-info">
+              <div class="exo-name">
+                Lancer de pièce
+              </div>
+              <div class="exo-desc">
+                Simulation de probabilités par lancer de pièce
+              </div>
+            </div>
+            <div class="exo-meta">
+              <span class="exo-tag">Séance 1</span>
+              <span class="exo-link">Ouvrir →</span>
+            </div>
+          </a>
+
+          <a
+            href="exos/parcours-graphe.html"
+            target="_blank"
+            class="exo-row fade-up delay-5"
+          >
+            <div class="exo-icon">⟶</div>
+            <div class="exo-info">
+              <div class="exo-name">Parcours graphe</div>
+              <div class="exo-desc">
+                Parcours d'un graphe
+              </div>
+            </div>
+            <div class="exo-meta">
+              <span class="exo-tag">Séance 2</span>
+              <span class="exo-link">Ouvrir →</span>
+            </div>
+          </a>
+
+          <a
+            href="exos/forme-aleatoire.html"
+            target="_blank"
+            class="exo-row fade-up delay-6"
+          >
+            <div class="exo-icon">◈</div>
+            <div class="exo-info">
+              <div class="exo-name">Formes aléatoires</div>
+              <div class="exo-desc">
+                Génération de formes géométriques aléatoires sur canvas
+              </div>
+            </div>
+            <div class="exo-meta">
+              <span class="exo-tag">Séance 3</span>
+              <span class="exo-link">Ouvrir →</span>
+            </div>
+          </a>
+        </div>
+      </section>
+
+      <footer class="fade-up">
+        <span>Mathis Vidueira</span>
+        <span class="footer-center"
+          >Mathématiques appliquées à la programmation · 2026</span
+        >
+        <span><span class="footer-dot"></span></span>
+      </footer>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>

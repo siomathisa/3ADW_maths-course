@@ -1,0 +1,359 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Séance 3 — Maths × Code</title>
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    .project-card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px;
+      padding: 36px 40px;
+      margin-top: 12px;
+      position: relative;
+      overflow: hidden;
+    }
+    .project-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(139,92,246,0.06) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .project-card h2 {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin: 0 0 8px;
+      letter-spacing: -0.02em;
+    }
+    .project-card .project-subtitle {
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      color: var(--accent);
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      margin-bottom: 24px;
+    }
+    .project-card p {
+      color: var(--muted);
+      line-height: 1.75;
+      margin: 0 0 16px;
+    }
+    .project-card p:last-of-type {
+      margin-bottom: 0;
+    }
+    .project-features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      margin: 28px 0;
+    }
+    .project-feature {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 10px;
+      padding: 18px 20px;
+    }
+    .project-feature .feat-icon {
+      font-size: 20px;
+      margin-bottom: 8px;
+      display: block;
+    }
+    .project-feature h4 {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin: 0 0 6px;
+    }
+    .project-feature p {
+      font-size: 12.5px;
+      color: var(--muted);
+      margin: 0;
+      line-height: 1.6;
+    }
+    .bayes-formula-block {
+      background: rgba(139,92,246,0.08);
+      border: 1px solid rgba(139,92,246,0.2);
+      border-radius: 12px;
+      padding: 20px 24px;
+      margin: 24px 0;
+      text-align: center;
+    }
+    .bayes-formula-block .formula-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: var(--accent);
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+    .bayes-formula-block .formula-big {
+      font-family: 'DM Mono', monospace;
+      font-size: 1.1rem;
+      color: #fff;
+    }
+    .project-link-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 32px;
+      padding: 14px 28px;
+      background: rgba(139,92,246,0.15);
+      border: 1px solid rgba(139,92,246,0.35);
+      border-radius: 10px;
+      font-family: 'Syne', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #fff;
+      text-decoration: none;
+      transition: background 0.2s, border-color 0.2s, transform 0.15s;
+    }
+    .project-link-btn:hover {
+      background: rgba(139,92,246,0.28);
+      border-color: rgba(139,92,246,0.6);
+      transform: translateY(-2px);
+    }
+    .project-link-btn .btn-icon {
+      font-size: 18px;
+      transition: transform 0.2s;
+    }
+    .project-link-btn:hover .btn-icon {
+      transform: translateX(4px);
+    }
+    .status-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 12px;
+      background: rgba(251,191,36,0.12);
+      border: 1px solid rgba(251,191,36,0.3);
+      border-radius: 20px;
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: #fbbf24;
+      margin-bottom: 24px;
+    }
+    .status-chip .pulse {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #fbbf24;
+      animation: pulse-dot 1.4s ease infinite;
+    }
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.7); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="bg-canvas">
+    <canvas id="bg-canvas"></canvas>
+    <div class="glow glow-1"></div>
+    <div class="glow glow-2"></div>
+    <div class="glow glow-3"></div>
+  </div>
+
+  <div class="seance-wrap">
+
+    <header class="seance-header fade-up">
+      <a href="../index.html" class="seance-back">← Retour</a>
+      <div class="seance-meta">
+        <span class="seance-num-big">Séance 03</span>
+        <span class="card-badge" style="background:rgba(251,191,36,0.15);color:#fbbf24;border-color:rgba(251,191,36,0.3);">En cours</span>
+      </div>
+      <h1 class="seance-title">Probabilités conditionnelles &amp; projet</h1>
+      <div class="seance-tags">
+        <span class="tag">Théorème de Bayes</span>
+        <span class="tag">Probabilités conditionnelles</span>
+        <span class="tag">Data & Décision</span>
+        <span class="tag">Projet interactif</span>
+      </div>
+    </header>
+
+    <!-- TOPICS -->
+    <div class="seance-section-title fade-up">Notions abordées</div>
+
+    <div class="topics-grid">
+
+      <div class="topic-block fade-up delay-1">
+        <span class="topic-block-icon">🎯</span>
+        <h3>Probabilité conditionnelle</h3>
+        <p>
+          La probabilité conditionnelle mesure la vraisemblance d'un événement <code>A</code>
+          sachant qu'un événement <code>B</code> est déjà réalisé.
+        </p>
+        <div class="formula-box">P(A | B) = P(A ∩ B) / P(B)</div>
+        <p style="margin-top:10px;">
+          C'est le point de départ du raisonnement bayésien : une probabilité
+          <em>qui se met à jour</em> lorsqu'on reçoit de nouvelles informations.
+        </p>
+      </div>
+
+      <div class="topic-block fade-up delay-2">
+        <span class="topic-block-icon">🔄</span>
+        <h3>Théorème de Bayes</h3>
+        <p>
+          Le théorème de Bayes permet d'inverser une probabilité conditionnelle.
+          Il relie la probabilité <em>a priori</em> à la probabilité <em>a posteriori</em>.
+        </p>
+        <div class="formula-box">P(A | B) = P(B | A) · P(A) / P(B)</div>
+        <p style="margin-top:10px;">
+          <strong>A priori</strong> : notre croyance initiale avant d'observer B.<br>
+          <strong>Vraisemblance</strong> : P(B | A), la chance d'observer B si A est vrai.<br>
+          <strong>A posteriori</strong> : notre croyance mise à jour après l'observation.
+        </p>
+        <p style="margin-top:10px; font-size:12px; color:var(--accent); letter-spacing:.05em;">
+          ↳ Chaque nouvelle donnée affine l'estimation — c'est l'essence du raisonnement data-driven.
+        </p>
+      </div>
+
+      <div class="topic-block fade-up delay-3">
+        <span class="topic-block-icon">📊</span>
+        <h3>Loi des probabilités totales</h3>
+        <p>
+          Pour calculer P(B) dans le dénominateur de Bayes, on utilise la loi
+          des probabilités totales sur une partition de l'espace :
+        </p>
+        <div class="formula-box">P(B) = Σ P(B | Aᵢ) · P(Aᵢ)</div>
+        <p style="margin-top:10px;">
+          Cela permet de "décomposer" un événement complexe en scénarios simples,
+          puis de les recomposer selon leur poids respectif.
+        </p>
+      </div>
+
+      <div class="topic-block fade-up delay-4">
+        <span class="topic-block-icon">💡</span>
+        <h3>Application : détection de spam</h3>
+        <p>
+          Exemple classique : un email contient le mot "gratuit".
+          Quelle est la probabilité que ce soit un spam ?
+        </p>
+        <p style="margin-top:10px;">
+          On pose :<br>
+          <code>P(spam) = 0.3</code> — prior<br>
+          <code>P("gratuit" | spam) = 0.8</code> — vraisemblance<br>
+          <code>P("gratuit" | ham) = 0.1</code> — bruit
+        </p>
+        <div class="formula-box" style="font-size:12px;">P(spam | "gratuit") ≈ 0.77</div>
+        <p style="margin-top:10px; font-style:italic; font-size:12px; color:var(--muted);">
+          → 77 % de chance que ce soit un spam après un seul indice.
+        </p>
+      </div>
+
+    </div>
+
+    <!-- PROJET -->
+    <div class="seance-section-title fade-up" style="margin-top:48px;">Avancement du projet</div>
+
+    <div class="project-card fade-up delay-1">
+
+      <div class="status-chip">
+        <span class="pulse"></span>
+        Projet en cours de développement
+      </div>
+
+      <h2>Simulateur interactif de décision bayésienne</h2>
+      <div class="project-subtitle">Thème : Data &amp; Décision · Probabilités conditionnelles</div>
+
+      <p>
+        Cette séance a été consacrée à l'avancement de notre projet : un site web interactif
+        qui permet de comprendre concrètement comment des données influencent une prise de
+        décision. Le modèle utilisé s'appuie sur le théorème de Bayes, qui permet de mettre
+        à jour une probabilité initiale au fil des nouvelles informations reçues.
+      </p>
+
+      <p>
+        L'utilisateur est plongé dans une situation réaliste — par exemple, déterminer si un
+        message est un spam ou non. Il peut ajuster différents paramètres à l'aide de sliders
+        et de boutons : probabilité initiale, fiabilité des indices, présence de certains signaux.
+        À chaque interaction, la probabilité finale est recalculée et affichée en temps réel.
+      </p>
+
+      <div class="bayes-formula-block">
+        <div class="formula-label">Le moteur du simulateur</div>
+        <div class="formula-big">P(A | B) = P(B | A) · P(A) / P(B)</div>
+      </div>
+
+      <div class="project-features">
+
+        <div class="project-feature">
+          <span class="feat-icon">🎚️</span>
+          <h4>Paramètres ajustables</h4>
+          <p>Sliders et boutons pour modifier le prior, la vraisemblance et la fiabilité des indices en direct.</p>
+        </div>
+
+        <div class="project-feature">
+          <span class="feat-icon">📈</span>
+          <h4>Visualisation dynamique</h4>
+          <p>Jauge animée et représentation avant / après pour voir immédiatement l'impact de chaque donnée sur la décision.</p>
+        </div>
+
+        <div class="project-feature">
+          <span class="feat-icon">📐</span>
+          <h4>Page "Les maths derrière"</h4>
+          <p>Explication simple et intuitive du modèle, accompagnée d'un schéma illustrant le processus de mise à jour bayésienne.</p>
+        </div>
+
+        <div class="project-feature">
+          <span class="feat-icon">👤</span>
+          <h4>Détection d'âge adaptative</h4>
+          <p>Le site observe le comportement de l'utilisateur (temps de réaction, vitesse de clic…) pour estimer son profil et adapter l'interface en conséquence — texte agrandi, contrastes renforcés, rythme ralenti.</p>
+        </div>
+
+      </div>
+
+      <p>
+        L'originalité du projet repose sur cette double dimension : un simulateur mathématiquement
+        rigoureux, mais rendu accessible et visuel grâce à une interface qui s'adapte à celui qui
+        la consulte. L'objectif est de montrer qu'un concept souvent perçu comme abstrait peut
+        devenir immédiatement lisible lorsqu'il est mis en mouvement.
+      </p>
+
+      <p>
+        Ce projet s'inscrit pleinement dans le thème <strong>Data &amp; Décision</strong> :
+        les données (sliders, indices, signaux) transforment une estimation initiale et font
+        basculer une décision — exactement comme dans un vrai système probabiliste.
+      </p>
+
+      <a href="../projet/projet_bayes.html" target="_blank" class="project-link-btn">
+        <span>Voir le projet en cours</span>
+        <span class="btn-icon">→</span>
+      </a>
+
+    </div>
+
+    <!-- EXERCICES LIÉS -->
+    <div class="seance-section-title fade-up">Exercices de la séance</div>
+
+    <p class="fade-up delay-1" style="color:var(--muted);font-size:14px;margin-bottom:16px;line-height:1.7;">
+      On a également découvert qu'en plaçant aléatoirement des millions de points dans un espace
+      et en appliquant une règle de coloration simple, on peut faire émerger des formes géométriques
+      complexes — une façon élégante de relier hasard et structure visuelle.
+    </p>
+
+    <a href="../exos/forme-aleatoire.html" target="_blank" class="exo-card-link fade-up delay-2">
+      <div class="exo-icon">◈</div>
+      <div>
+        <div class="exo-name">Formes aléatoires</div>
+        <div class="exo-desc">Génération de formes géométriques aléatoires sur canvas</div>
+      </div>
+      <span class="card-arrow">→</span>
+    </a>
+
+    <footer class="seance-footer fade-up">
+      <a href="seance2.html" class="seance-back" style="margin-bottom:0">← Séance 2</a>
+      <a href="../index.html" class="seance-back" style="margin-bottom:0">Toutes les séances</a>
+    </footer>
+
+  </div>
+
+  <script src="../script.js"></script>
+</body>
+</html>

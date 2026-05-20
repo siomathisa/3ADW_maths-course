@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Séance 2 — Maths × Code</title>
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <div class="bg-canvas">
+    <canvas id="bg-canvas"></canvas>
+    <div class="glow glow-1"></div>
+    <div class="glow glow-2"></div>
+    <div class="glow glow-3"></div>
+  </div>
+
+  <div class="seance-wrap">
+
+    <header class="seance-header fade-up">
+      <a href="../index.html" class="seance-back">← Retour</a>
+      <div class="seance-meta">
+        <span class="seance-num-big">Séance 02</span>
+        <span class="card-badge done">Terminé</span>
+      </div>
+      <h1 class="seance-title">Heuristiques, matrices &amp; graphes</h1>
+      <div class="seance-tags">
+        <span class="tag">9 points / 4 droites</span>
+        <span class="tag">Heuristiques</span>
+        <span class="tag">Matrices</span>
+        <span class="tag">Graphes</span>
+        <span class="tag">Parcours</span>
+      </div>
+    </header>
+
+    <!-- TOPICS -->
+    <div class="seance-section-title fade-up">Notions abordées</div>
+
+    <div class="topics-grid">
+
+      <div class="topic-block fade-up delay-1">
+        <span class="topic-block-icon">✦</span>
+        <h3>9 points en 4 droites</h3>
+        <p>
+          Problème classique de pensée latérale : relier 9 points disposés en grille 3×3
+          avec seulement 4 segments continus, sans lever le crayon.
+        </p>
+        <p style="margin-top:10px;">
+          La solution impose de <em>sortir du cadre</em> visible — les segments peuvent dépasser
+          les limites apparentes de la grille. C'est un exemple fondateur de raisonnement
+          hors des contraintes auto-imposées.
+        </p>
+        <p style="margin-top:10px; font-size:12px; color:var(--accent); letter-spacing:.05em;">
+          ↳ Intuition clé : les contraintes que l'on se donne sont souvent imaginaires.
+        </p>
+      </div>
+
+      <div class="topic-block fade-up delay-2">
+        <span class="topic-block-icon">🧭</span>
+        <h3>Heuristiques</h3>
+        <p>
+          Une heuristique est une méthode approchée de résolution de problèmes — rapide mais
+          sans garantie d'optimalité. On l'oppose aux algorithmes exacts.
+        </p>
+        <p style="margin-top:10px;">
+          En IA et recherche de chemin, une heuristique <code>H(n)</code> estime le coût restant.
+          Elle doit être <strong>admissible</strong> : ne jamais surestimer le vrai coût.
+        </p>
+        <div class="formula-box">H(n) ≤ H*(n)</div>
+        <p style="margin-top:10px;">
+          Exemples : distance euclidienne, distance de Manhattan, glouton…
+        </p>
+      </div>
+
+      <div class="topic-block fade-up delay-3">
+        <span class="topic-block-icon">▦</span>
+        <h3>Matrices</h3>
+        <p>
+          Une matrice est un tableau de nombres organisé en lignes et colonnes.
+          Une matrice <code>m × n</code> a <code>m</code> lignes et <code>n</code> colonnes.
+        </p>
+        <p style="margin-top:10px;">
+          <strong>Opérations :</strong><br>
+          Addition : terme à terme (même dimension).<br>
+          Multiplication : <code>C[i][j] = Σ A[i][k] × B[k][j]</code><br>
+          Transposée : <code>Aᵀ[i][j] = A[j][i]</code>
+        </p>
+        <div class="formula-box">(AB)[i][j] = Σ<sub>k</sub> A[i][k] · B[k][j]</div>
+        <p style="margin-top:10px;">
+          Usages : transformations géométriques, réseaux de neurones, résolution de systèmes linéaires.
+        </p>
+      </div>
+
+      <div class="topic-block fade-up delay-4">
+        <span class="topic-block-icon">◎</span>
+        <h3>Graphes</h3>
+        <p>
+          Un graphe est une structure composée de <strong>sommets</strong> (nœuds) reliés par des
+          <strong>arêtes</strong>. On note <code>G = (V, E)</code>.
+        </p>
+        <p style="margin-top:10px;">
+          <code>V</code> = ensemble des sommets<br>
+          <code>E</code> = ensemble des arêtes (ou arcs si orienté)
+        </p>
+        <p style="margin-top:10px;">
+          Types : orienté / non-orienté, pondéré, connexe, cyclique.<br>
+          Représentations : liste d'adjacence, matrice d'adjacence.
+        </p>
+        <div class="formula-box">A[i][j] = 1 si (i → j) ∈ E</div>
+      </div>
+
+      <div class="topic-block fade-up delay-5" style="grid-column: span 1;">
+        <span class="topic-block-icon">🔍</span>
+        <h3>Parcours de graphe</h3>
+        <p>
+          Deux algorithmes fondamentaux pour explorer un graphe :
+        </p>
+        <p style="margin-top:10px;">
+          <code>BFS</code> — Parcours en Largeur (Breadth-First Search)<br>
+          Explore niveau par niveau à partir d'un sommet source.
+          Utilise une <strong>file</strong> (FIFO). Trouve le plus court chemin en nombre d'arêtes.
+        </p>
+        <p style="margin-top:10px;">
+          <code>DFS</code> — Parcours en Profondeur (Depth-First Search)<br>
+          Explore aussi loin que possible avant de revenir.
+          Utilise une <strong>pile</strong> (LIFO) ou la récursion.
+        </p>
+        <p style="margin-top:10px; font-style:italic; font-size:12px; color:var(--muted);">
+          → Exercice : représentation et parcours d'un graphe.
+        </p>
+      </div>
+
+    </div>
+
+    <!-- EXERCICES LIÉS -->
+    <div class="seance-section-title fade-up">Exercices associés</div>
+ 
+    <a href="../exos/parcours-graphe.html" target="_blank" class="exo-card-link fade-up delay-1">
+      <div class="exo-icon">⟶</div>
+      <div>
+        <div class="exo-name">Parcours Graphe</div>
+        <div class="exo-desc">Parcours d'un graphe</div>
+      </div>
+      <span class="card-arrow">→</span>
+    </a>
+
+    <footer class="seance-footer fade-up">
+      <a href="seance1.html" class="seance-back" style="margin-bottom:0">← Séance 1</a>
+      <a href="../index.html" class="seance-back" style="margin-bottom:0">Toutes les séances</a>
+    </footer>
+
+  </div>
+
+  <script src="../script.js"></script>
+</body>
+</html>
