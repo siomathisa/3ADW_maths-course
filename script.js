@@ -1,5 +1,5 @@
 /* ─────────────────────────────────────────
-   MATHS × CODE — script.js
+   MATHS × CODE - script.js
    3D wireframe sphere · Tron grid · Particles · Card tilt
 ───────────────────────────────────────── */
 
@@ -306,26 +306,85 @@
   const splashBtn = document.getElementById('splash-yes');
   const siteWrap  = document.querySelector('.site-wrap');
 
+  function playPortalSound() {
+    const ac = new (window.AudioContext || window.webkitAudioContext)();
+    const now = ac.currentTime;
+
+    // Soft delay for spatial depth
+    const delay    = ac.createDelay(0.5);
+    delay.delayTime.value = 0.2;
+    const feedback = ac.createGain();
+    feedback.gain.value = 0.22;
+    delay.connect(feedback);
+    feedback.connect(delay);
+
+    const master = ac.createGain();
+    master.gain.value = 0.38;
+    master.connect(ac.destination);
+    delay.connect(master);
+
+    // Light arpeggio: A4 → E5 → A5 (440 → 659 → 880 Hz)
+    [
+      { freq: 440, t: 0,    dur: 1.1 },
+      { freq: 659, t: 0.09, dur: 1.0 },
+      { freq: 880, t: 0.18, dur: 0.9 },
+    ].forEach(({ freq, t, dur }) => {
+      const osc = ac.createOscillator();
+      osc.type = 'sine';
+      osc.frequency.value = freq;
+      const g = ac.createGain();
+      g.gain.setValueAtTime(0, now + t);
+      g.gain.linearRampToValueAtTime(0.25, now + t + 0.012);
+      g.gain.exponentialRampToValueAtTime(0.001, now + t + dur);
+      osc.connect(g);
+      g.connect(master);
+      g.connect(delay);
+      osc.start(now + t);
+      osc.stop(now + t + dur + 0.05);
+    });
+
+    // Airy high shimmer (très soft)
+    const shimmer = ac.createOscillator();
+    shimmer.type = 'sine';
+    shimmer.frequency.setValueAtTime(3520, now);
+    shimmer.frequency.exponentialRampToValueAtTime(2200, now + 0.9);
+    const gs = ac.createGain();
+    gs.gain.setValueAtTime(0, now);
+    gs.gain.linearRampToValueAtTime(0.04, now + 0.05);
+    gs.gain.exponentialRampToValueAtTime(0.001, now + 0.85);
+    shimmer.connect(gs); gs.connect(master);
+    shimmer.start(now); shimmer.stop(now + 1.0);
+  }
+
+  function enterSite() {
+    if (!splashEl || splashBtn.dataset.entering) return;
+    splashBtn.dataset.entering = '1';
+    playPortalSound();
+    splashBtn.textContent        = 'ENTERING…';
+    splashBtn.style.pointerEvents = 'none';
+    splashBtn.style.letterSpacing = '0.35em';
+
+    setTimeout(() => {
+      splashEl.classList.add('splash-exit');
+    }, 160);
+
+    setTimeout(() => {
+      splashEl.remove();
+      siteWrap.style.transition    = 'opacity 1.1s ease';
+      siteWrap.style.opacity       = '1';
+      siteWrap.style.pointerEvents = '';
+    }, 1100);
+  }
+
   if (splashEl && splashBtn && siteWrap) {
     siteWrap.style.opacity       = '0';
     siteWrap.style.pointerEvents = 'none';
 
-    splashBtn.addEventListener('click', () => {
-      splashBtn.textContent        = 'ENTERING…';
-      splashBtn.style.pointerEvents = 'none';
-      splashBtn.style.letterSpacing = '0.35em';
+    splashBtn.addEventListener('click', enterSite);
 
-      setTimeout(() => {
-        splashEl.classList.add('splash-exit');
-      }, 160);
-
-      setTimeout(() => {
-        splashEl.remove();
-        siteWrap.style.transition    = 'opacity 1.1s ease';
-        siteWrap.style.opacity       = '1';
-        siteWrap.style.pointerEvents = '';
-      }, 1100);
-    });
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Enter') enterSite();
+    }, { once: true });
   }
 
 })();

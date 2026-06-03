@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Maths × Code</title>
+    <title>Maths × Code 2026</title>
     <link rel="stylesheet" href="style.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link
@@ -14,7 +14,7 @@
   <body>
     <div id="splash">
       <div class="splash-inner">
-        <p class="splash-label">MATHS × CODE — 2026</p>
+        <p class="splash-label">MATHS × CODE 2026</p>
         <h2 class="splash-title">Enter the website<span class="splash-q">&thinsp;?</span></h2>
         <button id="splash-yes">YES</button>
       </div>
@@ -37,6 +37,7 @@
           <a href="#">Accueil</a>
           <a href="#seances">Séances</a>
           <a href="#exos">Exercices</a>
+          <a href="#projet">Projet</a>
         </nav>
       </header>
 
@@ -73,7 +74,7 @@
       <!-- SÉANCES -->
       <section id="seances">
         <div class="section-head fade-up delay-2">
-          <span class="section-index">01 —</span>
+          <span class="section-index">01 -</span>
           <h2>Séances</h2>
         </div>
 
@@ -127,9 +128,9 @@
           >
             <div class="card-header">
               <span class="card-num">03</span>
-              <span class="card-badge" style="background:rgba(251,191,36,0.15);color:#fbbf24;border-color:rgba(251,191,36,0.3);">En cours</span>
+              <span class="card-badge done">Terminé</span>
             </div>
-            <div class="card-title">Probabilités conditionnelles &amp; projet</div>
+            <div class="card-title">Probabilités conditionnelles &amp; début du projet</div>
             <div class="card-topics">
               <span class="tag">Bayes</span>
               <span class="tag">Probabilités conditionnelles</span>
@@ -145,8 +146,8 @@
               <span class="card-badge dst">DST</span>
             </div>
             <div class="card-title">Devoir sur table · Fascicule</div>
-            <div class="card-desc">DST sur le fascicule de la séance et soutenances intermédiaires</div>
-            <a href="seances/dst-s4.pdf" download class="btn-download">⬇ Télécharger le sujet</a>
+            <div class="card-desc">DST sur un fascicule et soutenances intermédiaires de projet</div>
+            <a href="fascicule.pdf" download class="btn-download">⬇ Télécharger le fascicule</a>
           </div>
 
           <a
@@ -156,9 +157,10 @@
           >
             <div class="card-header">
               <span class="card-num">05</span>
-              <span class="card-badge">À venir</span>
+              <span class="card-badge dst">Soutenance</span>
             </div>
-            <div class="card-title">—</div>
+            <div class="card-title">Soutenance finale + Vibecoding</div>
+            <div class="card-desc">Soutenance finale du projet avec démonstration et challenge vibecoding</div>
             <span class="card-arrow" style="opacity: 0.3">→</span>
           </a>
         </div>
@@ -167,7 +169,7 @@
       <!-- EXERCICES -->
       <section id="exos">
         <div class="section-head fade-up">
-          <span class="section-index">02 —</span>
+          <span class="section-index">02 -</span>
           <h2>Exercices</h2>
         </div>
 
@@ -256,6 +258,34 @@
               <div class="exo-name">Formes aléatoires</div>
               <div class="exo-desc">
                 Génération de formes géométriques aléatoires sur canvas
+              </div>
+            </div>
+            <div class="exo-meta">
+              <span class="exo-tag">Séance 3</span>
+              <span class="exo-link">Ouvrir →</span>
+            </div>
+          </a>
+        </div>
+      </section>
+
+      <!-- PROJET -->
+      <section id="projet">
+        <div class="section-head fade-up">
+          <span class="section-index">03 -</span>
+          <h2>Projet</h2>
+        </div>
+
+        <div class="exos-list">
+          <a
+            href="projet/projet_bayes.html"
+            target="_blank"
+            class="exo-row fade-up delay-2"
+          >
+            <div class="exo-icon">⟁</div>
+            <div class="exo-info">
+              <div class="exo-name">Simulateur bayésien</div>
+              <div class="exo-desc">
+                Probabilités conditionnelles appliquées à la prise de décision : modéliser, calculer et visualiser avec le théorème de Bayes.
               </div>
             </div>
             <div class="exo-meta">

@@ -337,11 +337,11 @@
     <div class="stats" id="stats">
       <div class="stat">
         <span class="stat-label">Succès</span>
-        <span class="stat-value" id="success">—</span>
+        <span class="stat-value" id="success">-</span>
       </div>
       <div class="stat">
         <span class="stat-label">Échecs</span>
-        <span class="stat-value" id="echecs">—</span>
+        <span class="stat-value" id="echecs">-</span>
       </div>
     </div>
 
@@ -414,7 +414,7 @@
 
           document.getElementById('bar').style.width = pct + '%';
           document.getElementById('freq-label').textContent = pct + '%';
-          document.getElementById('frequence').textContent = `p̂ = ${frequence.toFixed(4)} — sur 10 000 lancers`;
+          document.getElementById('frequence').textContent = `p̂ = ${frequence.toFixed(4)} - sur 10 000 lancers`;
           document.getElementById('deviation').innerHTML = `Écart à 0.5 : <span>${deviationSign}${deviation}%</span>`;
 
           btn.disabled = false;

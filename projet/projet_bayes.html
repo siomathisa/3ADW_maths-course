@@ -2,763 +2,1127 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>Simulateur bayésien — Data & Décision</title>
+<title>Bayes : Simulateur de décision</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
-  :root {
-    --bg:        #0B1027;
-    --bg2:       #11173a;
-    --panel:     #141B3D;
-    --panel2:    #1a2353;
-    --primary:   #6366F1;
-    --cyan:      #06B6D4;
-    --gold:      #F59E0B;
-    --rose:      #F43F5E;
-    --green:     #22C55E;
-    --text:      #E2E8F0;
-    --textDark:  #0F172A;
-    --mute:      #94A3B8;
-    --border:    #1E293B;
-    --bgLight:   #F7F8FC;
+:root {
+  --ink:        #0F1015;
+  --ink2:       #1B1D26;
+  --cream:      #FAF9F4;
+  --paper:      #FDFCF7;
+  --text:       #1A1A22;
+  --charcoal:   #26262E;
+  --ochre:      #C77D2C;
+  --ochre-soft: #E2A35F;
+  --gold-faint: #F1E3CB;
+  --clay:       #DD6B5C;
+  --rose:       #B85042;
+  --sage:       #6E9088;
+  --mute:       #8B8680;
+  --mute-light: #AFAAA0;
+  --soft:       #E5E0D3;
+  --hairline:   #C9C3B5;
 
-    --fs-base:   16px;
-    --fs-h1:     34px;
-    --fs-h2:     22px;
-    --gap:       16px;
-    --pad:       18px;
-    --radius:    12px;
-  }
+  --fs-base:    16px;
+  --fs-h1:      76px;
+  --fs-h2:      36px;
+  --fs-result:  88px;
+  --pad:        36px;
+}
 
-  /* Mode "senior" — activé par le détecteur d'âge */
-  body.senior-mode {
-    --fs-base: 20px;
-    --fs-h1:   42px;
-    --fs-h2:   28px;
-    --pad:     24px;
-  }
-  body.senior-mode .card { line-height: 1.7; }
-  body.senior-mode button { padding: 14px 20px; font-size: 15px; }
+body.senior-mode {
+  --fs-base:   19px;
+  --fs-h1:     84px;
+  --fs-h2:     42px;
+  --fs-result: 100px;
+}
 
-  * { box-sizing: border-box; }
-  html, body {
-    margin: 0; padding: 0;
-    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-    background: radial-gradient(ellipse at top, #1a2151 0%, var(--bg) 60%) fixed;
-    color: var(--text);
-    font-size: var(--fs-base);
-    min-height: 100vh;
-  }
+* { box-sizing: border-box; }
 
-  /* ============== TOP NAV ============== */
-  header.top {
-    position: sticky; top: 0; z-index: 50;
-    background: rgba(11, 16, 39, 0.92);
-    backdrop-filter: blur(8px);
-    border-bottom: 1px solid var(--border);
-  }
-  .nav-inner {
-    max-width: 1320px; margin: 0 auto;
-    padding: 12px 24px;
-    display: flex; align-items: center; gap: 24px;
-    flex-wrap: wrap;
-  }
-  .brand {
-    font-family: Georgia, serif;
-    font-weight: bold;
-    font-size: 18px;
-    background: linear-gradient(90deg, var(--cyan), var(--gold));
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    letter-spacing: 1px;
-    white-space: nowrap;
-  }
-  nav.tabs { display: flex; gap: 4px; flex: 1; flex-wrap: wrap; }
-  nav.tabs button {
-    background: transparent; color: var(--mute); border: 0;
-    padding: 8px 14px; border-radius: 8px; cursor: pointer;
-    font-size: 13px; font-weight: 600;
-    transition: background 0.15s, color 0.15s;
-  }
-  nav.tabs button:hover { color: var(--text); background: rgba(99,102,241,0.1); }
-  nav.tabs button.active {
-    background: var(--primary); color: #fff;
-  }
+html, body {
+  margin: 0; padding: 0;
+  background: var(--cream);
+  color: var(--text);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: var(--fs-base);
+  line-height: 1.55;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
 
-  /* ============== PAGES ============== */
-  main { max-width: 1320px; margin: 0 auto; padding: 28px 24px 60px; }
-  .page { display: none; }
-  .page.active { display: block; animation: fade 0.3s ease; }
-  @keyframes fade { from { opacity:0; transform: translateY(8px);} to {opacity:1; transform: none;} }
+/* ============ NAV ============ */
+header.site {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(250, 249, 244, 0.94);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--hairline);
+}
+.nav-inner {
+  max-width: 1280px; margin: 0 auto;
+  padding: 18px var(--pad);
+  display: flex; align-items: center; gap: 32px;
+  flex-wrap: wrap;
+}
+.brand {
+  font-family: Calibri, "Segoe UI", sans-serif;
+  font-size: 11px; font-weight: bold;
+  letter-spacing: 4px;
+  color: var(--charcoal);
+  margin-right: auto;
+}
+.brand em { font-style: normal; color: var(--ochre); }
+nav.tabs { display: flex; gap: 28px; flex-wrap: wrap; }
+nav.tabs button {
+  background: none; border: none;
+  font-family: Calibri, "Segoe UI", sans-serif;
+  font-size: 12px; font-weight: bold;
+  letter-spacing: 2.5px;
+  color: var(--mute);
+  cursor: pointer;
+  padding: 4px 0;
+  border-bottom: 1px solid transparent;
+  transition: color 0.15s, border-color 0.15s;
+}
+nav.tabs button:hover { color: var(--text); }
+nav.tabs button.active {
+  color: var(--text);
+  border-bottom-color: var(--ochre);
+}
+body.senior-mode nav.tabs button { font-size: 14px; }
 
-  h1.page-title {
-    font-family: Georgia, serif;
-    font-size: var(--fs-h1);
-    margin: 0 0 8px;
-    color: #fff;
-  }
-  .subtitle {
-    color: var(--mute);
-    font-style: italic;
-    margin: 0 0 24px;
-  }
-  h2 {
-    font-family: Georgia, serif;
-    font-size: var(--fs-h2);
-    color: var(--text);
-    margin: 28px 0 12px;
-  }
+/* ============ MAIN ============ */
+main { max-width: 1280px; margin: 0 auto; padding: 48px var(--pad) 80px; }
+.page { display: none; }
+.page.active { display: block; animation: fade 0.35s ease; }
+@keyframes fade {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: none; }
+}
 
-  .card {
-    background: var(--panel);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: var(--pad);
-    box-shadow: 0 4px 14px rgba(0,0,0,0.25);
-  }
-  .card h3 {
-    margin: 0 0 12px;
-    font-size: 11px;
-    color: var(--mute);
-    letter-spacing: 2px;
-    text-transform: uppercase;
-  }
+/* ============ KICKER ============ */
+.kicker {
+  display: inline-block;
+  font-family: Calibri, "Segoe UI", sans-serif;
+  font-size: 11px; font-weight: bold;
+  letter-spacing: 4px;
+  color: var(--mute);
+  margin-bottom: 22px;
+  text-transform: uppercase;
+}
+.kicker .num { color: var(--ochre); margin-right: 14px; }
 
-  .grid-2 { display: grid; grid-template-columns: 1fr 360px; gap: var(--gap); }
-  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--gap); }
-  @media (max-width: 900px) {
-    .grid-2 { grid-template-columns: 1fr; }
-    .grid-3 { grid-template-columns: 1fr; }
-  }
+/* ============ TITRES ============ */
+.page-title {
+  font-size: var(--fs-h2);
+  font-weight: bold;
+  margin: 0 0 6px;
+  letter-spacing: -0.5px;
+  line-height: 1.05;
+}
+.page-title em {
+  font-style: italic; color: var(--ochre); font-weight: bold;
+}
+.subtitle {
+  font-style: italic;
+  color: var(--mute);
+  font-size: 17px;
+  margin: 0 0 40px;
+}
 
-  /* Sliders */
-  .control { margin-bottom: 16px; }
-  .control label {
-    display: flex; justify-content: space-between;
-    font-size: 12px; color: var(--mute); margin-bottom: 6px;
-  }
-  .control label .v {
-    color: var(--gold); font-family: 'Consolas', monospace; font-weight: bold;
-  }
-  .control input[type=range] {
-    width: 100%; accent-color: var(--primary); cursor: pointer;
-  }
-  .check {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 8px 10px; border-radius: 6px;
-    background: rgba(255,255,255,0.03); margin-bottom: 6px;
-  }
-  .check input { transform: scale(1.2); margin-right: 10px; accent-color: var(--cyan); }
-  .check label { flex: 1; font-size: 13px; cursor: pointer; }
-  .check .lr { font-family: Consolas, monospace; font-size: 11px; color: var(--mute); }
+/* ============ HOME : HERO ============ */
+.hero {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 60px;
+  align-items: start;
+  padding: 40px 0 60px;
+  border-bottom: 1px solid var(--hairline);
+}
+.hero h1 {
+  font-size: var(--fs-h1);
+  margin: 0;
+  line-height: 0.94;
+  letter-spacing: -2px;
+  font-weight: bold;
+}
+.hero h1 em {
+  font-style: italic; color: var(--ochre); font-weight: bold;
+}
+.hero .tagline {
+  margin: 24px 0 0;
+  font-size: 22px;
+  font-style: italic;
+  color: var(--charcoal);
+}
 
-  .stat {
-    display: flex; justify-content: space-between; align-items: baseline;
-    padding: 6px 0; border-bottom: 1px dashed var(--border);
-  }
-  .stat:last-child { border: none; }
-  .stat .label { font-size: 13px; color: var(--mute); }
-  .stat .value { font-family: Cambria, Georgia, serif; font-size: 18px; font-weight: bold; }
-  .stat .value.gold { color: var(--gold); }
-  .stat .value.cyan { color: var(--cyan); }
-  .stat .value.rose { color: var(--rose); }
-  .stat .value.green{ color: var(--green); }
+.pullquote { position: relative; padding-left: 50px; }
+.pullquote .guill {
+  font-family: Georgia, serif;
+  font-style: italic;
+  font-size: 110px;
+  color: var(--ochre);
+  line-height: 0.5;
+  position: absolute;
+  top: 12px; left: -8px;
+}
+.pullquote blockquote {
+  margin: 0;
+  font-style: italic;
+  font-size: 17px;
+  line-height: 1.65;
+  color: var(--charcoal);
+}
+.pullquote blockquote strong { color: var(--text); font-weight: bold; font-style: italic; }
+.pullquote .rose { color: var(--rose); font-weight: bold; font-style: italic; }
+.pullquote .source {
+  margin-top: 24px; padding-top: 18px;
+  border-top: 1px solid var(--hairline);
+  font-family: Calibri, "Segoe UI", sans-serif;
+  font-size: 10px; letter-spacing: 4px;
+  color: var(--mute); font-style: normal; font-weight: bold;
+  display: block;
+}
+.pullquote .source em {
+  display: block; margin-top: 6px;
+  font-family: Georgia, serif;
+  font-style: italic; font-weight: normal;
+  font-size: 14px; color: var(--charcoal); letter-spacing: 0;
+}
 
-  /* Jauge circulaire */
-  .gauge { position: relative; width: 220px; height: 220px; margin: 12px auto; }
-  .gauge svg { width: 100%; height: 100%; transform: rotate(-90deg); }
-  .gauge .bg-ring { stroke: rgba(255,255,255,0.06); }
-  .gauge .fg-ring { stroke: var(--gold); transition: stroke-dashoffset 0.4s, stroke 0.4s; stroke-linecap: round; }
-  .gauge .lbl {
-    position: absolute; inset: 0;
-    display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
-    text-align: center;
-  }
-  .gauge .pct {
-    font-family: Cambria, Georgia, serif;
-    font-size: 42px; font-weight: bold; color: var(--gold);
-  }
-  .gauge .desc { font-size: 11px; color: var(--mute); margin-top: 4px; letter-spacing: 1px; }
+/* ============ TOC ============ */
+.toc { padding: 48px 0 0; }
+.toc h2 {
+  font-size: 32px;
+  margin: 0 0 32px;
+  font-weight: bold;
+  letter-spacing: -0.5px;
+}
+.toc h2 em { font-style: italic; color: var(--ochre); }
+.toc ol { list-style: none; margin: 0; padding: 0; }
+.toc li {
+  display: grid;
+  grid-template-columns: 80px 1fr 40px;
+  align-items: baseline;
+  gap: 24px;
+  padding: 28px 12px;
+  border-top: 1px solid var(--hairline);
+  cursor: pointer;
+  transition: background 0.2s, padding-left 0.2s;
+}
+.toc li:hover {
+  background: var(--paper);
+  padding-left: 28px;
+}
+.toc li:hover .arrow { color: var(--ochre); transform: translateX(8px); }
+.toc li:last-child { border-bottom: 1px solid var(--hairline); }
+.toc .toc-num {
+  font-family: Georgia, serif;
+  font-style: italic;
+  font-size: 32px;
+  color: var(--ochre);
+  font-weight: bold;
+}
+.toc h3 {
+  font-size: 24px;
+  margin: 0 0 6px;
+  font-weight: bold;
+  letter-spacing: -0.5px;
+}
+.toc h3 em { font-style: italic; color: var(--ochre); }
+.toc p {
+  margin: 0;
+  font-style: italic;
+  color: var(--mute);
+  font-size: 14px;
+}
+.toc .arrow {
+  font-size: 22px;
+  color: var(--mute);
+  font-family: Calibri, sans-serif;
+  text-align: right;
+  transition: color 0.2s, transform 0.25s;
+}
+.toc li.starred .toc-num,
+.toc li.starred h3 em { color: var(--clay); }
 
-  .verdict {
-    margin-top: 14px; padding: 14px; border-radius: 10px;
-    text-align: center; font-weight: bold; font-size: 18px;
-    transition: background 0.4s, color 0.4s;
-  }
-  .verdict.low  { background: rgba(34,197,94,0.18);  color: #4ade80; }
-  .verdict.mid  { background: rgba(245,158,11,0.18); color: var(--gold); }
-  .verdict.high { background: rgba(244,63,94,0.18);  color: #fb7185; }
+/* ============ TWO COLUMN ============ */
+.split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 70px;
+  margin-top: 32px;
+}
+@media (max-width: 900px) {
+  .hero, .split { grid-template-columns: 1fr; gap: 40px; }
+  .toc li { grid-template-columns: 50px 1fr 30px; gap: 16px; }
+}
 
-  .barcomp { display: grid; grid-template-columns: 80px 1fr 60px; gap: 10px; align-items: center; margin: 6px 0; font-size: 12px; }
-  .barcomp .bar { background: rgba(255,255,255,0.05); height: 10px; border-radius: 5px; overflow: hidden; }
-  .barcomp .bar > div { height: 100%; transition: width 0.4s; }
+/* ============ CONTROLS ============ */
+.control { margin-bottom: 28px; }
+.control-head {
+  display: flex; justify-content: space-between; align-items: baseline;
+  margin-bottom: 10px;
+}
+.control-label {
+  font-family: Calibri, sans-serif;
+  font-size: 11px; font-weight: bold;
+  letter-spacing: 3px;
+  color: var(--charcoal);
+  text-transform: uppercase;
+}
+.control-value {
+  font-family: Georgia, serif;
+  font-style: italic;
+  font-size: 20px;
+  font-weight: bold;
+  color: var(--ochre);
+}
+.control input[type=range] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%; height: 2px;
+  background: var(--hairline);
+  outline: none;
+  margin: 12px 0;
+}
+.control input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none;
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  background: var(--ochre);
+  cursor: pointer;
+  border: 2px solid var(--cream);
+  box-shadow: 0 0 0 1px var(--ochre);
+}
+.control input[type=range]::-moz-range-thumb {
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  background: var(--ochre);
+  cursor: pointer;
+  border: 2px solid var(--cream);
+  box-shadow: 0 0 0 1px var(--ochre);
+}
+.control-caption {
+  font-size: 13px;
+  font-style: italic;
+  color: var(--mute);
+  margin-top: 2px;
+}
 
-  /* Bouton */
-  button.btn {
-    background: var(--primary); color: #fff; border: 0;
-    padding: 10px 16px; border-radius: 8px; cursor: pointer;
-    font-weight: bold; font-size: 13px; letter-spacing: 1px;
-    transition: opacity 0.2s, transform 0.1s;
-  }
-  button.btn:hover { opacity: 0.85; }
-  button.btn:active { transform: scale(0.97); }
-  button.btn.alt { background: var(--border); color: var(--text); }
-  button.btn.gold { background: var(--gold); }
+/* ============ CHECKBOXES ============ */
+.checks-section h4 {
+  font-family: Calibri, sans-serif;
+  font-size: 11px; font-weight: bold;
+  letter-spacing: 4px;
+  color: var(--mute);
+  margin: 32px 0 10px;
+  text-transform: uppercase;
+}
+.check {
+  display: flex; align-items: center;
+  padding: 14px 0;
+  border-top: 1px solid var(--hairline);
+  cursor: pointer;
+  font-family: Calibri, sans-serif;
+}
+.check:last-child { border-bottom: 1px solid var(--hairline); }
+.check input { display: none; }
+.check .cbx {
+  width: 18px; height: 18px;
+  border: 1.5px solid var(--charcoal);
+  margin-right: 18px;
+  transition: background 0.15s, border-color 0.15s;
+  flex-shrink: 0;
+  position: relative;
+}
+.check input:checked + .cbx {
+  background: var(--ochre);
+  border-color: var(--ochre);
+}
+.check input:checked + .cbx::after {
+  content: '';
+  position: absolute;
+  left: 5px; top: 1px;
+  width: 5px; height: 10px;
+  border-right: 2px solid var(--cream);
+  border-bottom: 2px solid var(--cream);
+  transform: rotate(40deg);
+}
+.check .label-text {
+  flex: 1;
+  font-size: 14.5px;
+  color: var(--text);
+}
+.check .ratio {
+  font-family: Georgia, serif;
+  font-style: italic;
+  font-size: 14px;
+  color: var(--ochre);
+  font-weight: bold;
+}
+body.senior-mode .check .label-text { font-size: 17px; }
 
-  /* ============== HOME ============== */
-  .hero {
-    text-align: center;
-    padding: 30px 20px 40px;
-    background: linear-gradient(180deg, transparent, rgba(99,102,241,0.06));
-    border-radius: 16px;
-    margin-bottom: 28px;
-  }
-  .hero .label {
-    display: inline-block; padding: 6px 14px;
-    background: var(--primary); color: #fff;
-    border-radius: 99px; font-size: 11px; font-weight: bold;
-    letter-spacing: 2px; margin-bottom: 18px;
-  }
-  .hero h1 {
-    font-family: Georgia, serif;
-    font-size: 64px; line-height: 1; margin: 0;
-    background: linear-gradient(90deg, var(--cyan), #fff, var(--gold));
-    -webkit-background-clip: text; background-clip: text;
-    -webkit-text-fill-color: transparent;
-  }
-  .hero .tagline {
-    font-style: italic; font-family: Georgia, serif;
-    font-size: 22px; color: var(--cyan); margin-top: 16px;
-  }
-  .hero .formula {
-    margin: 28px auto 0;
-    background: var(--panel);
-    border: 1px solid var(--primary);
-    padding: 16px 22px; border-radius: 10px;
-    display: inline-block;
-    font-family: Cambria, Georgia, serif;
-    font-style: italic; font-size: 22px;
-  }
-  .hero .formula .C { color: var(--gold); font-weight: bold; }
-  .hero .formula .E { color: var(--cyan); font-weight: bold; }
+/* ============ BIG RESULT ============ */
+.result-block {
+  border-top: 2px solid var(--ink);
+  padding-top: 18px;
+}
+.result-label {
+  font-family: Calibri, sans-serif;
+  font-size: 11px; font-weight: bold;
+  letter-spacing: 4px;
+  color: var(--mute);
+  text-transform: uppercase;
+}
+.result-value {
+  font-size: var(--fs-result);
+  font-weight: bold; font-style: italic;
+  line-height: 1;
+  color: var(--ochre);
+  margin: 14px 0 0;
+  letter-spacing: -3px;
+  transition: color 0.3s;
+}
+.result-value.high  { color: var(--rose); }
+.result-value.mid   { color: var(--ochre); }
+.result-value.low   { color: var(--sage); }
+.result-verdict {
+  font-style: italic;
+  font-size: 18px;
+  margin-top: 18px;
+  color: var(--charcoal);
+}
+.result-verdict.high { color: var(--rose); }
+.result-verdict.low  { color: var(--sage); }
 
-  .features { margin-top: 36px; }
-  .feature {
-    cursor: pointer;
-    transition: transform 0.15s, border-color 0.15s, background 0.15s;
-  }
-  .feature:hover {
-    transform: translateY(-3px);
-    border-color: var(--primary);
-  }
-  .feature .icon {
-    width: 50px; height: 50px; border-radius: 12px;
-    display: flex; align-items: center; justify-content: center;
-    font-family: Georgia, serif; font-size: 24px; font-weight: bold;
-    color: #fff; margin-bottom: 12px;
-  }
-  .feature h3 {
-    font-family: Georgia, serif; font-size: 19px; color: var(--text);
-    letter-spacing: 0; text-transform: none; margin: 0 0 8px;
-  }
-  .feature p { font-size: 13px; color: var(--mute); margin: 0 0 10px; line-height: 1.5; }
-  .feature .tag {
-    display: inline-block; font-size: 10px; letter-spacing: 2px;
-    padding: 3px 8px; border-radius: 99px; font-weight: bold;
-  }
-  .tag.star { background: var(--gold); color: var(--textDark); }
-  .tag.std  { background: var(--border); color: var(--mute); }
+/* ============ BEFORE / AFTER ============ */
+.before-after {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 24px;
+  align-items: center;
+  margin-top: 40px;
+  padding-top: 28px;
+  border-top: 1px solid var(--hairline);
+}
+.ba-cell { text-align: center; }
+.ba-cell .lbl {
+  font-family: Calibri, sans-serif;
+  font-size: 10px; letter-spacing: 4px;
+  color: var(--mute); font-weight: bold;
+}
+.ba-cell .v {
+  font-family: Georgia, serif;
+  font-style: italic; font-weight: bold;
+  font-size: 48px; display: block;
+  line-height: 1; margin-top: 12px;
+  letter-spacing: -1.5px;
+}
+.ba-prior .v { color: var(--mute); }
+.ba-post  .v { color: var(--ochre); }
+.ba-arrow {
+  font-size: 28px; color: var(--mute);
+  font-family: Calibri, sans-serif;
+}
 
-  /* ============== AGE DETECTION ============== */
-  .age-stage {
-    background: var(--panel); border-radius: var(--radius);
-    padding: 24px; min-height: 320px;
-    border: 1px solid var(--border);
-    text-align: center;
-  }
-  .age-stage h3 {
-    font-size: 11px; letter-spacing: 2px; color: var(--mute);
-    margin: 0 0 12px;
-  }
-  .age-stage .instruction {
-    font-size: 16px; color: var(--text);
-    margin-bottom: 24px;
-  }
-  .target-zone {
-    position: relative;
-    height: 220px;
-    background: rgba(255,255,255,0.02);
-    border: 1px dashed var(--border);
-    border-radius: 8px;
-    margin: 16px 0;
-    overflow: hidden;
-  }
-  .target {
-    position: absolute;
-    width: 60px; height: 60px;
-    border-radius: 50%;
-    background: var(--gold);
-    color: var(--textDark);
-    display: flex; align-items: center; justify-content: center;
-    font-weight: bold; cursor: pointer;
-    transition: transform 0.15s;
-    box-shadow: 0 0 20px rgba(245,158,11,0.5);
-    border: 0;
-    font-size: 14px;
-  }
-  .target:hover { transform: scale(1.1); }
-  body.senior-mode .target { width: 90px; height: 90px; font-size: 18px; }
+/* ============ DOT GRID ============ */
+.dotgrid {
+  display: grid;
+  grid-template-columns: repeat(40, 1fr);
+  gap: 2px;
+  width: 100%;
+  aspect-ratio: 40/25;
+  background: transparent;
+}
+.dotgrid .dot {
+  background: var(--soft);
+  border-radius: 50%;
+  aspect-ratio: 1;
+  transition: background 0.2s, transform 0.2s;
+}
+.dotgrid .dot.malade {
+  background: var(--rose);
+  transform: scale(1.7);
+  z-index: 2;
+}
+.dotgrid .dot.fauxpos {
+  background: var(--ochre);
+  transform: scale(1.4);
+  z-index: 1;
+}
+.dot-legend {
+  display: flex; gap: 28px;
+  margin-top: 18px;
+  font-family: Calibri, sans-serif;
+  font-size: 13px;
+  color: var(--charcoal);
+}
+.dot-legend .swatch {
+  display: inline-block;
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  vertical-align: middle;
+  margin-right: 8px;
+}
+.dot-legend .swatch.rose  { background: var(--rose); }
+.dot-legend .swatch.ochre { background: var(--ochre); }
 
-  .age-bayes-panel {
-    display: grid; grid-template-columns: 1fr 1fr; gap: var(--gap);
-    margin-top: 18px;
-  }
-  .indices-list { font-size: 12px; }
-  .indices-list .ix {
-    display: flex; justify-content: space-between;
-    padding: 5px 8px; border-radius: 4px;
-    background: rgba(255,255,255,0.03); margin-bottom: 4px;
-  }
-  .indices-list .ix .lr { color: var(--gold); font-family: Consolas, monospace; }
+/* ============ BUTTONS ============ */
+.btn {
+  background: var(--ink);
+  color: var(--cream);
+  border: none;
+  padding: 12px 22px;
+  font-family: Calibri, sans-serif;
+  font-size: 11px; font-weight: bold;
+  letter-spacing: 3px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.btn:hover { background: var(--ochre); }
+.btn.alt { background: var(--cream); color: var(--ink); border: 1px solid var(--ink); }
+.btn.alt:hover { background: var(--ink); color: var(--cream); }
+body.senior-mode .btn { padding: 16px 26px; font-size: 13px; }
 
-  .adapt-banner {
-    margin-top: 16px; padding: 16px; border-radius: 10px;
-    background: linear-gradient(90deg, var(--cyan), var(--primary));
-    color: #fff; font-weight: bold; text-align: center;
-    display: none;
-  }
-  .adapt-banner.show { display: block; animation: pop 0.5s ease; }
-  @keyframes pop { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+/* ============ AGE DETECTION ============ */
+.adapt-banner {
+  background: var(--ochre);
+  color: var(--cream);
+  padding: 16px 24px;
+  font-family: Calibri, sans-serif;
+  font-weight: bold;
+  letter-spacing: 2.5px;
+  font-size: 12px;
+  margin-bottom: 32px;
+  display: none;
+  text-align: center;
+}
+.adapt-banner.show { display: block; animation: pop 0.45s ease; }
+@keyframes pop { from{transform:scale(0.96); opacity:0;} to{transform:scale(1); opacity:1;} }
 
-  /* ============== PATHS CANVAS ============== */
-  .stage-canvas { background: var(--panel); border-radius: var(--radius); padding: 14px; border: 1px solid var(--border); }
-  #pathsCanvas { display: block; width: 100%; height: 480px; border-radius: 8px; }
+.age-stage {
+  background: var(--paper);
+  border: 1px solid var(--hairline);
+  padding: 32px;
+  text-align: center;
+}
+.target-zone {
+  position: relative;
+  height: 240px;
+  margin: 24px 0;
+  background: var(--cream);
+  border: 1px dashed var(--hairline);
+  overflow: hidden;
+}
+.target {
+  position: absolute;
+  width: 54px; height: 54px;
+  border-radius: 50%;
+  background: var(--ochre);
+  color: var(--cream);
+  font-family: Calibri, sans-serif;
+  font-weight: bold; font-size: 16px;
+  cursor: pointer; border: none;
+  display: flex; align-items: center; justify-content: center;
+  transition: transform 0.15s;
+  box-shadow: 0 0 0 2px var(--cream), 0 0 0 3px var(--ochre);
+}
+.target:hover { transform: scale(1.08); }
+body.senior-mode .target { width: 88px; height: 88px; font-size: 24px; }
 
-  /* ============== MATH PAGE ============== */
-  .math-formula-big {
-    background: var(--panel); border: 1px solid var(--primary);
-    padding: 30px 20px; border-radius: 12px; text-align: center;
-    margin: 20px 0;
-  }
-  .math-formula-big .eq {
-    font-family: Cambria, Georgia, serif; font-style: italic;
-    font-size: 48px; line-height: 1;
-  }
-  .math-formula-big .C { color: var(--gold); font-weight: bold; }
-  .math-formula-big .E { color: var(--cyan); font-weight: bold; }
-  .math-formula-big .small { font-size: 36px; }
+.hits-line {
+  font-family: Calibri, sans-serif;
+  font-size: 13px; color: var(--mute);
+  letter-spacing: 1px;
+}
 
-  .pipeline {
-    display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px;
-    margin: 20px 0;
-  }
-  .step {
-    background: var(--panel2); border: 1px solid var(--border);
-    border-radius: 8px; padding: 14px 10px; text-align: center;
-    transition: border-color 0.2s, background 0.2s;
-    cursor: default;
-  }
-  .step:hover { border-color: var(--gold); background: var(--panel); }
-  .step .n {
-    width: 32px; height: 32px; border-radius: 50%; background: var(--primary);
-    color: #fff; font-weight: bold; line-height: 32px; margin: 0 auto 8px;
-  }
-  .step h4 { margin: 0 0 6px; font-size: 12px; color: var(--text); letter-spacing: 1px; }
-  .step p { margin: 0; font-size: 11px; color: var(--mute); line-height: 1.4; }
-  @media (max-width: 900px) { .pipeline { grid-template-columns: 1fr 1fr; } }
+/* indices */
+.indices { margin: 0; padding: 0; list-style: none; }
+.indices li {
+  display: flex; justify-content: space-between;
+  padding: 10px 0;
+  border-top: 1px solid var(--hairline);
+  font-family: Calibri, sans-serif;
+  font-size: 13.5px;
+  color: var(--text);
+}
+.indices li:last-child { border-bottom: 1px solid var(--hairline); }
+.indices .lr {
+  font-family: Georgia, serif;
+  font-style: italic; font-weight: bold;
+  color: var(--ochre);
+}
+.indices li.empty {
+  color: var(--mute); font-style: italic;
+  border: none;
+}
 
-  blockquote {
-    border-left: 3px solid var(--gold); padding: 12px 18px;
-    background: rgba(245,158,11,0.08); border-radius: 6px;
-    font-style: italic; color: var(--text); margin: 16px 0;
-  }
+/* ============ PATHS ============ */
+.canvas-frame {
+  position: relative;
+  background: #050616;
+  border: 1px solid #1B2050;
+  padding: 4px;
+  margin-top: 16px;
+  box-shadow:
+    inset 0 0 80px rgba(80, 80, 180, 0.08),
+    0 0 36px rgba(199, 125, 44, 0.12),
+    0 0 1px rgba(199, 125, 44, 0.4);
+}
+.canvas-frame::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(to right, rgba(199,125,44,0.5), transparent 8%, transparent 92%, rgba(199,125,44,0.5)) top / 100% 1px no-repeat,
+    linear-gradient(to right, rgba(199,125,44,0.5), transparent 8%, transparent 92%, rgba(199,125,44,0.5)) bottom / 100% 1px no-repeat;
+  z-index: 1;
+}
+canvas {
+  display: block;
+  width: 100%; height: 520px;
+}
 
-  code {
-    background: rgba(255,255,255,0.06); padding: 2px 6px;
-    border-radius: 4px; font-family: Consolas, monospace;
-    color: var(--cyan);
-  }
-  pre {
-    background: #0F172A; border: 1px solid var(--border);
-    padding: 16px; border-radius: 8px; overflow-x: auto;
-    font-family: Consolas, monospace; font-size: 13px;
-    color: var(--text);
-  }
-  pre .kw { color: var(--gold); }
-  pre .cm { color: var(--mute); font-style: italic; }
+.paths-controls {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr auto auto;
+  gap: 36px;
+  margin-top: 40px;
+  align-items: end;
+}
+@media (max-width: 900px) {
+  .paths-controls { grid-template-columns: 1fr 1fr; }
+}
 
-  footer.foot {
-    text-align: center; padding: 24px; color: var(--mute);
-    font-size: 12px; font-style: italic;
-    border-top: 1px solid var(--border); margin-top: 40px;
-  }
+.paths-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  margin-top: 48px;
+  padding-top: 32px;
+  border-top: 2px solid var(--ink);
+}
+.stat-section h4 {
+  font-family: Calibri, sans-serif;
+  font-size: 11px; font-weight: bold;
+  letter-spacing: 4px;
+  color: var(--mute);
+  margin: 0 0 14px;
+  text-transform: uppercase;
+}
+.big-stat {
+  font-family: Georgia, serif;
+  font-style: italic; font-weight: bold;
+  font-size: 36px;
+  letter-spacing: -1px;
+}
+.big-stat.cyan  { color: var(--sage); }
+.big-stat.gold  { color: var(--ochre); }
+.big-stat.clay  { color: var(--clay); }
+
+.live-row {
+  font-family: Calibri, sans-serif;
+  font-size: 13px;
+  color: var(--charcoal);
+  margin-bottom: 8px;
+}
+.live-row .mute { color: var(--mute); }
+.live-row strong { font-family: Georgia, serif; font-style: italic; }
+
+/* ============ MATH PAGE ============ */
+.formula-display {
+  text-align: center;
+  margin: 48px auto 16px;
+  font-family: Cambria, Georgia, serif;
+  font-style: italic;
+  font-size: 64px;
+  letter-spacing: -1px;
+  line-height: 1.1;
+  max-width: 1000px;
+}
+.formula-display .C { color: var(--ochre); font-weight: bold; }
+.formula-display .E { color: var(--sage); font-weight: bold; }
+
+.quote-block {
+  border-left: 3px solid var(--ochre);
+  padding: 16px 28px;
+  font-style: italic;
+  font-size: 18px;
+  color: var(--charcoal);
+  margin: 56px auto;
+  max-width: 900px;
+}
+.quote-block strong { font-style: italic; color: var(--text); }
+
+.term-columns {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 40px;
+  margin: 64px 0;
+}
+@media (max-width: 900px) {
+  .term-columns { grid-template-columns: 1fr 1fr; }
+  .formula-display { font-size: 38px; }
+}
+.term-col { padding-top: 4px; }
+.term-col .letter {
+  font-family: Cambria, Georgia, serif;
+  font-style: italic; font-weight: bold;
+  font-size: 38px; line-height: 1;
+  margin-bottom: 6px;
+}
+.term-col .rule {
+  width: 32px;
+  border-top: 1px solid currentColor;
+  margin: 10px 0 12px;
+}
+.term-col .name {
+  font-family: Calibri, sans-serif;
+  font-size: 10px; font-weight: bold;
+  letter-spacing: 4px;
+  color: var(--mute);
+  margin-bottom: 12px;
+  text-transform: uppercase;
+}
+.term-col .desc {
+  font-size: 14.5px;
+  font-style: italic;
+  color: var(--charcoal);
+  line-height: 1.55;
+}
+
+.section-h2 {
+  font-size: 32px;
+  margin: 72px 0 24px;
+  letter-spacing: -0.5px;
+  font-weight: bold;
+}
+.section-h2 em { font-style: italic; color: var(--ochre); }
+
+.pipeline {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 24px;
+  margin: 36px 0;
+  counter-reset: step;
+}
+@media (max-width: 900px) { .pipeline { grid-template-columns: 1fr 1fr; } }
+.pipeline .step {
+  padding-top: 18px;
+  border-top: 2px solid var(--ink);
+  counter-increment: step;
+}
+.pipeline .step::before {
+  content: counter(step, decimal-leading-zero) ".";
+  font-family: Georgia, serif;
+  font-weight: bold; font-style: italic;
+  color: var(--ochre);
+  font-size: 22px;
+  display: block;
+  margin-bottom: 10px;
+}
+.pipeline .step h4 {
+  font-family: Calibri, sans-serif;
+  font-size: 10px; font-weight: bold;
+  letter-spacing: 4px;
+  color: var(--mute);
+  margin: 0 0 8px;
+  text-transform: uppercase;
+}
+.pipeline .step p {
+  margin: 0;
+  font-size: 13.5px;
+  font-style: italic;
+  color: var(--charcoal);
+  line-height: 1.55;
+}
+
+pre {
+  background: var(--ink);
+  color: var(--cream);
+  padding: 24px 28px;
+  font-family: "Courier New", Courier, monospace;
+  font-size: 13.5px;
+  line-height: 1.7;
+  overflow-x: auto;
+  border: none;
+  margin: 24px 0;
+}
+pre .cm { color: var(--mute-light); font-style: italic; }
+pre .kw { color: var(--ochre-soft); }
+pre .em { color: var(--ochre); }
+code {
+  font-family: "Courier New", monospace;
+  background: var(--soft);
+  padding: 2px 8px;
+  font-size: 14px;
+}
+
+.math-prose {
+  font-size: 17px;
+  line-height: 1.75;
+  max-width: 760px;
+  margin: 16px 0;
+}
+.math-prose strong { color: var(--text); font-weight: bold; }
+.math-prose em { color: var(--ochre); font-style: italic; }
+
+/* ============ FOOTER ============ */
+footer.foot {
+  border-top: 1px solid var(--hairline);
+  margin-top: 100px;
+  padding: 36px var(--pad);
+  text-align: center;
+  font-family: Calibri, sans-serif;
+  font-size: 11px; letter-spacing: 4px;
+  color: var(--mute);
+}
+footer.foot em { color: var(--ochre); font-style: normal; }
 </style>
 </head>
 <body>
 
-<header class="top">
+<header class="site">
   <div class="nav-inner">
-    <div class="brand">BAYES · DATA &amp; DÉCISION</div>
+    <div class="brand">BAYES &middot; <em>SIMULATEUR DE DÉCISION</em></div>
     <nav class="tabs" id="tabs">
-      <button data-page="home"    class="active">Accueil</button>
-      <button data-page="spam">Sim. Spam</button>
-      <button data-page="medical">Sim. Médical</button>
+      <button data-page="home" class="active">Accueil</button>
+      <button data-page="spam">Spam</button>
+      <button data-page="medical">Médical</button>
       <button data-page="age">★ Détection d'âge</button>
-      <button data-page="paths">Animation chemins</button>
-      <button data-page="math">Les maths derrière</button>
+      <button data-page="paths">Animation</button>
+      <button data-page="math">Les maths</button>
     </nav>
   </div>
 </header>
 
 <main>
 
-<!-- ===================== HOME ===================== -->
+<!-- ============================================ HOME -->
 <section class="page active" id="page-home">
-  <div class="hero">
-    <span class="label">PÔLE DATA &amp; DÉCISION · BACHELOR 3 WEB</span>
-    <h1>BAYES</h1>
-    <div class="tagline">Remonter le temps des causes.</div>
-    <div class="formula">
-      P(<span class="C">cause</span> | <span class="E">effet</span>) =
-      P(<span class="E">effet</span> | <span class="C">cause</span>) · P(<span class="C">cause</span>) / P(<span class="E">effet</span>)
+  <article class="hero">
+    <div>
+      <span class="kicker"><span class="num">Nº 01</span>INTRODUCTION</span>
+      <h1>Simulateur<br><em>bayésien.</em></h1>
+      <p class="tagline">Remonter le temps des causes.</p>
     </div>
-  </div>
+    <aside class="pullquote">
+      <span class="guill">«</span>
+      <blockquote>
+        Un test médical fiable à <strong>99 %</strong> revient positif.
+        Vous pensez être malade.<br><br>
+        Et pourtant, votre risque réel n'est que de <span class="rose">9 %</span>.
+        <span class="source">
+          LE THÉORÈME DE BAYES
+          <em>Un calcul honnête, pas un bug.</em>
+        </span>
+      </blockquote>
+    </aside>
+  </article>
 
-  <p style="max-width: 760px; margin: 0 auto 8px; text-align: center; color: var(--mute); line-height: 1.6;">
-    Un site interactif pour comprendre comment une décision se met à jour
-    avec de nouvelles informations. Trois simulations, une animation continue,
-    et la formule de Bayes expliquée pas à pas.
-  </p>
-
-  <div class="grid-3 features">
-
-    <div class="card feature" data-go="spam">
-      <div class="icon" style="background: var(--cyan)">@</div>
-      <h3>Filtre anti-spam</h3>
-      <p>Quel est le risque qu'un mail soit un spam selon ses indices : mots-clés, expéditeur, lien ?</p>
-      <span class="tag std">SIMULATION 1</span>
-    </div>
-
-    <div class="card feature" data-go="medical">
-      <div class="icon" style="background: var(--rose)">M</div>
-      <h3>Test médical</h3>
-      <p>Le piège des faux positifs : un test fiable à 99 % donne… seulement 9 % de vraie probabilité.</p>
-      <span class="tag std">SIMULATION 2</span>
-    </div>
-
-    <div class="card feature" data-go="age">
-      <div class="icon" style="background: var(--gold); color: var(--textDark)">★</div>
-      <h3>Détection d'âge adaptative</h3>
-      <p>Le site observe vos clics, devine votre tranche d'âge, et adapte son interface en direct.</p>
-      <span class="tag star">SIMULATION 3 ★</span>
-    </div>
-
-    <div class="card feature" data-go="paths">
-      <div class="icon" style="background: var(--primary)">~</div>
-      <h3>Animation continue</h3>
-      <p>Des milliers de particules suivent des chemins aléatoires. On voit Bayes émerger sous nos yeux.</p>
-      <span class="tag std">VISUALISATION</span>
-    </div>
-
-    <div class="card feature" data-go="math">
-      <div class="icon" style="background: #fff; color: var(--textDark);">π</div>
-      <h3>Les maths derrière</h3>
-      <p>La formule décortiquée, les 4 termes expliqués, un exemple chiffré pas à pas.</p>
-      <span class="tag std">EXPLICATION</span>
-    </div>
-
-    <div class="card" style="border-color: var(--gold); background: linear-gradient(135deg, rgba(245,158,11,0.08), transparent);">
-      <h3 style="color: var(--gold);">★ POURQUOI BAYES</h3>
-      <p style="font-size: 13px; color: var(--text); line-height: 1.6;">
-        Toutes les décisions ci-dessus partagent la même structure :
-        on observe une <b style="color:var(--cyan)">conséquence</b>
-        et on veut deviner la <b style="color:var(--gold)">cause</b>.
-      </p>
-      <p style="font-size: 13px; color: var(--mute); font-style: italic; line-height: 1.6;">
-        C'est exactement ce que fait la formule de Bayes :
-        elle permet de remonter le temps.
-      </p>
-    </div>
-
-  </div>
+  <article class="toc">
+    <h2>Au <em>sommaire.</em></h2>
+    <ol>
+      <li data-go="spam">
+        <span class="toc-num">i.</span>
+        <div>
+          <h3>Filtre <em>anti-spam.</em></h3>
+          <p>Quelle proba qu'un mail soit un spam ? On coche les indices, la jauge bouge.</p>
+        </div>
+        <span class="arrow">→</span>
+      </li>
+      <li data-go="medical">
+        <span class="toc-num">ii.</span>
+        <div>
+          <h3>Test <em>médical.</em></h3>
+          <p>Le piège des faux positifs : un test fiable à 99 % qui ne donne que 9 %.</p>
+        </div>
+        <span class="arrow">→</span>
+      </li>
+      <li data-go="age" class="starred">
+        <span class="toc-num">iii.</span>
+        <div>
+          <h3>Détection <em>d'âge.</em> &nbsp;★</h3>
+          <p>Le site mesure vos clics, devine votre tranche d'âge, et adapte son interface.</p>
+        </div>
+        <span class="arrow">→</span>
+      </li>
+      <li data-go="paths">
+        <span class="toc-num">iv.</span>
+        <div>
+          <h3>Animation <em>continue.</em></h3>
+          <p>Mille particules par seconde : le ratio observé converge vers Bayes, en direct.</p>
+        </div>
+        <span class="arrow">→</span>
+      </li>
+      <li data-go="math">
+        <span class="toc-num">v.</span>
+        <div>
+          <h3>Les <em>maths.</em></h3>
+          <p>La formule terme par terme, le code source, l'exemple chiffré pas à pas.</p>
+        </div>
+        <span class="arrow">→</span>
+      </li>
+    </ol>
+  </article>
 </section>
 
-<!-- ===================== SPAM ===================== -->
+<!-- ============================================ SPAM -->
 <section class="page" id="page-spam">
-  <h1 class="page-title">Simulateur — Filtre anti-spam</h1>
-  <p class="subtitle">Cause cachée : ce mail est-il un spam ? Effets observables : les indices ci-dessous.</p>
+  <span class="kicker"><span class="num">Nº 02</span>SIMULATEUR I</span>
+  <h1 class="page-title">Le filtre <em>anti-spam.</em></h1>
+  <p class="subtitle">Cause cachée : ce mail est-il un spam ? On observe les indices, Bayes recalcule.</p>
 
-  <div class="grid-2">
-
-    <div class="card">
-      <h3>INDICES OBSERVÉS</h3>
+  <div class="split">
+    <div>
       <div class="control">
-        <label>Prior — proportion de spam dans votre boîte
-          <span class="v" id="spamPriorV">30 %</span></label>
+        <div class="control-head">
+          <span class="control-label">Prior · proportion de spam</span>
+          <span class="control-value" id="spamPriorV">30 %</span>
+        </div>
         <input type="range" id="spamPrior" min="1" max="80" value="30">
+        <div class="control-caption">≈ taux de base dans une boîte mail classique.</div>
       </div>
 
-      <h3 style="margin-top: 18px;">SIGNAUX (cocher ceux observés)</h3>
-      <div id="spamFeats"></div>
-
-      <p style="font-size: 11px; color: var(--mute); font-style: italic; margin-top: 10px;">
-        Chaque indice apporte un <b>ratio de vraisemblance</b> = P(indice | spam) / P(indice | légitime).
-        Bayes multiplie la cote initiale par chaque ratio.
-      </p>
+      <div class="checks-section">
+        <h4>Signaux observés</h4>
+        <div id="spamFeats"></div>
+      </div>
     </div>
 
-    <div class="card">
-      <h3>P(SPAM | INDICES)</h3>
-      <div class="gauge">
-        <svg viewBox="0 0 100 100">
-          <circle class="bg-ring" cx="50" cy="50" r="44" fill="none" stroke-width="8"/>
-          <circle id="spamRing" class="fg-ring" cx="50" cy="50" r="44" fill="none" stroke-width="8"
-            stroke-dasharray="276.46" stroke-dashoffset="276.46"/>
-        </svg>
-        <div class="lbl"><div class="pct" id="spamPct">30 %</div><div class="desc">PROBA POSTERIOR</div></div>
+    <div>
+      <div class="result-block">
+        <div class="result-label">P(spam | indices)</div>
+        <div class="result-value" id="spamPct">30 %</div>
+        <div class="result-verdict" id="spamVerdict">Indécis : à examiner.</div>
       </div>
 
-      <div id="spamVerdict" class="verdict mid">→ Indécis</div>
-
-      <h3 style="margin-top: 18px;">AVANT / APRÈS</h3>
-      <div class="barcomp"><span>Prior</span>
-        <div class="bar"><div id="spamBarPrior" style="width:30%;background:var(--mute)"></div></div>
-        <span id="spamBarPriorV" style="text-align:right">30 %</span></div>
-      <div class="barcomp"><span>Posterior</span>
-        <div class="bar"><div id="spamBarPost" style="width:30%;background:var(--gold)"></div></div>
-        <span id="spamBarPostV" style="text-align:right">30 %</span></div>
+      <div class="before-after">
+        <div class="ba-cell ba-prior">
+          <span class="lbl">PRIOR</span>
+          <span class="v" id="spamBPrior">30 %</span>
+        </div>
+        <div class="ba-arrow">→</div>
+        <div class="ba-cell ba-post">
+          <span class="lbl">POSTERIOR</span>
+          <span class="v" id="spamBPost">30 %</span>
+        </div>
+      </div>
     </div>
-
   </div>
 </section>
 
-<!-- ===================== MEDICAL ===================== -->
+<!-- ============================================ MEDICAL -->
 <section class="page" id="page-medical">
-  <h1 class="page-title">Simulateur — Test médical</h1>
-  <p class="subtitle">Le piège des faux positifs : un test « fiable à 99 % » est-il vraiment fiable ?</p>
+  <span class="kicker"><span class="num">Nº 03</span>SIMULATEUR II</span>
+  <h1 class="page-title">Le test <em>médical.</em></h1>
+  <p class="subtitle">Le piège des faux positifs : un test très fiable peut surprendre.</p>
 
-  <div class="grid-2">
-
-    <div class="card">
-      <h3>PARAMÈTRES</h3>
-
+  <div class="split">
+    <div>
       <div class="control">
-        <label>Prévalence — P(malade)
-          <span class="v" id="medPrevV">0,1 %</span></label>
+        <div class="control-head">
+          <span class="control-label">Prévalence · P(malade)</span>
+          <span class="control-value" id="medPrevV">0,1 %</span>
+        </div>
         <input type="range" id="medPrev" min="1" max="500" value="10">
-        <p style="font-size: 11px; color: var(--mute); font-style: italic; margin: 4px 0 0;">
-          1 personne sur 1000 — typique d'une maladie rare.
-        </p>
+        <div class="control-caption">1 personne sur 1 000 : typique d'une maladie rare.</div>
       </div>
-
       <div class="control">
-        <label>Sensibilité — P(test+ | malade)
-          <span class="v" id="medSensV">99 %</span></label>
+        <div class="control-head">
+          <span class="control-label">Sensibilité · P(test+ | malade)</span>
+          <span class="control-value" id="medSensV">99 %</span>
+        </div>
         <input type="range" id="medSens" min="50" max="100" value="99">
       </div>
-
       <div class="control">
-        <label>Faux positifs — P(test+ | sain)
-          <span class="v" id="medFpV">1 %</span></label>
+        <div class="control-head">
+          <span class="control-label">Faux positifs · P(test+ | sain)</span>
+          <span class="control-value" id="medFpV">1 %</span>
+        </div>
         <input type="range" id="medFp" min="0" max="50" value="1">
       </div>
 
-      <h3 style="margin-top: 18px;">CALCUL DE BAYES</h3>
-      <pre id="medCalc" style="font-size:12px;line-height:1.5;"></pre>
-    </div>
-
-    <div class="card">
-      <h3>P(MALADE | TEST +)</h3>
-      <div class="gauge">
-        <svg viewBox="0 0 100 100">
-          <circle class="bg-ring" cx="50" cy="50" r="44" fill="none" stroke-width="8"/>
-          <circle id="medRing" class="fg-ring" cx="50" cy="50" r="44" fill="none" stroke-width="8"
-            stroke-dasharray="276.46" stroke-dashoffset="276.46"/>
-        </svg>
-        <div class="lbl"><div class="pct" id="medPct">9 %</div><div class="desc">PROBA POSTERIOR</div></div>
+      <div class="result-block" style="margin-top: 44px;">
+        <div class="result-label">P(malade | test +)</div>
+        <div class="result-value" id="medPct">9,0 %</div>
+        <div class="result-verdict" id="medVerdict">Plutôt rassurant.</div>
       </div>
-
-      <div id="medVerdict" class="verdict low">→ Plutôt rassurant</div>
-
-      <h3 style="margin-top: 18px;">CE QU'ON RETIENT</h3>
-      <p style="font-size: 13px; color: var(--mute); line-height: 1.6;">
-        Pour une maladie rare, même un test très fiable produit beaucoup de faux positifs en valeur absolue.
-        <b style="color: var(--gold)">Le prior écrase la vraisemblance.</b>
-      </p>
     </div>
 
+    <div>
+      <h4 style="font-family: Calibri, sans-serif; font-size: 11px; letter-spacing: 4px; color: var(--mute); margin: 0 0 16px; font-weight: bold;">SUR 1 000 PERSONNES TESTÉES</h4>
+      <div class="dotgrid" id="medGrid"></div>
+      <div class="dot-legend">
+        <div><span class="swatch rose"></span><strong id="medMaladeCount">1</strong>&nbsp;vrai positif</div>
+        <div><span class="swatch ochre"></span><strong id="medFauxCount">10</strong>&nbsp;faux positifs</div>
+      </div>
+    </div>
   </div>
 </section>
 
-<!-- ===================== AGE DETECTION ===================== -->
+<!-- ============================================ AGE -->
 <section class="page" id="page-age">
-  <h1 class="page-title">★ Détection d'âge — UI adaptative</h1>
-  <p class="subtitle">Le site observe vos clics, calcule P(senior | comportement), et s'adapte si nécessaire.</p>
+  <span class="kicker"><span class="num">Nº 04 ★</span>FEATURE PHARE</span>
+  <h1 class="page-title">Le site <em>qui devine,</em><br>puis s'adapte.</h1>
+  <p class="subtitle">Le calcul bayésien pilote l'interface : au-delà de 65 %, tout grossit automatiquement.</p>
 
   <div class="adapt-banner" id="adaptBanner">
-    Mode senior activé — police agrandie, contrastes renforcés
+    MODE SENIOR ACTIVÉ : POLICE AGRANDIE, CONTRASTES RENFORCÉS
   </div>
 
-  <div class="grid-2">
-
-    <div class="age-stage">
-      <h3>JEU — CLIQUEZ SUR LES CIBLES QUI APPARAISSENT</h3>
-      <p class="instruction" id="ageInstruction">Cliquez « DÉMARRER » et tapez sur chaque pastille dorée le plus vite possible.</p>
-      <div style="display: flex; gap: 10px; justify-content: center; margin-bottom: 12px;">
-        <button class="btn gold" id="ageStart">DÉMARRER LE JEU</button>
-        <button class="btn alt" id="ageReset">RÉINITIALISER</button>
+  <div class="split">
+    <div>
+      <div class="age-stage">
+        <h4 style="font-family: Calibri, sans-serif; font-size: 11px; letter-spacing: 4px; color: var(--mute); margin: 0 0 12px; font-weight: bold;">CLIQUEZ SUR LES CIBLES</h4>
+        <p id="ageInstruction" style="font-style: italic; color: var(--charcoal); margin: 0 0 22px; font-size: 15px;">
+          Cliquez « DÉMARRER » et tapez sur chaque cible le plus vite possible.
+        </p>
+        <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+          <button class="btn" id="ageStart">DÉMARRER</button>
+          <button class="btn alt" id="ageReset">RÉINITIALISER</button>
+        </div>
+        <div class="target-zone" id="targetZone"></div>
+        <div class="hits-line">
+          <span id="ageHits">0</span> / 6 cibles touchées
+        </div>
       </div>
-      <div class="target-zone" id="targetZone"></div>
-      <p style="font-size: 12px; color: var(--mute); margin: 8px 0 0;">
-        <span id="ageHits">0</span> / 6 cibles touchées
-      </p>
     </div>
 
     <div>
-
-      <div class="card">
-        <h3>P(SENIOR | COMPORTEMENT)</h3>
-        <div class="gauge" style="width:160px;height:160px;">
-          <svg viewBox="0 0 100 100">
-            <circle class="bg-ring" cx="50" cy="50" r="44" fill="none" stroke-width="8"/>
-            <circle id="ageRing" class="fg-ring" cx="50" cy="50" r="44" fill="none" stroke-width="8"
-              stroke-dasharray="276.46" stroke-dashoffset="138.23"/>
-          </svg>
-          <div class="lbl"><div class="pct" id="agePct" style="font-size:30px;">50 %</div><div class="desc">PROBA POSTERIOR</div></div>
-        </div>
-        <div class="stat"><span class="label">Prior</span>            <span class="value" id="agePrior">50 %</span></div>
-        <div class="stat"><span class="label">Cote (odds)</span>      <span class="value cyan" id="ageOdds">1,00</span></div>
-        <div class="stat"><span class="label">Statut UI</span>        <span class="value gold" id="ageMode">standard</span></div>
+      <div class="result-block">
+        <div class="result-label">P(senior | comportement)</div>
+        <div class="result-value mid" id="agePct">50 %</div>
+        <div class="result-verdict" id="ageMode">Mode standard.</div>
       </div>
 
-      <div class="card" style="margin-top: var(--gap);">
-        <h3>INDICES OBSERVÉS &amp; RATIO DE BAYES</h3>
-        <div class="indices-list" id="ageIndices">
-          <div class="ix" style="color: var(--mute); font-style: italic;">Aucun indice encore — démarrez le jeu.</div>
-        </div>
-      </div>
-
+      <h4 style="font-family: Calibri, sans-serif; font-size: 11px; letter-spacing: 4px; color: var(--mute); margin: 36px 0 0; font-weight: bold;">INDICES OBSERVÉS</h4>
+      <ul class="indices" id="ageIndices">
+        <li class="empty">Aucun indice : démarrez le jeu.</li>
+      </ul>
     </div>
-
   </div>
 </section>
 
-<!-- ===================== PATHS ANIMATION ===================== -->
+<!-- ============================================ PATHS -->
 <section class="page" id="page-paths">
-  <h1 class="page-title">Animation — Chemins aléatoires</h1>
-  <p class="subtitle">Des milliers de particules. La proportion observée converge vers la valeur calculée par Bayes.</p>
+  <span class="kicker"><span class="num">Nº 05</span>OBSERVATION CONTINUE</span>
+  <h1 class="page-title">Mille particules,<br><em>une seule loi.</em></h1>
+  <p class="subtitle">Le ratio observé converge vers la probabilité calculée par Bayes, visible à l'œil nu.</p>
 
-  <div class="grid-2">
+  <div class="canvas-frame">
+    <canvas id="pathsCanvas"></canvas>
+  </div>
 
-    <div class="stage-canvas">
-      <canvas id="pathsCanvas"></canvas>
+  <div class="paths-controls">
+    <div class="control" style="margin: 0;">
+      <div class="control-head">
+        <span class="control-label">Prior · P(malade)</span>
+        <span class="control-value" id="pPriorV">10 %</span>
+      </div>
+      <input type="range" id="pPrior" min="1" max="500" value="100">
     </div>
-
-    <div>
-      <div class="card">
-        <h3>PARAMÈTRES</h3>
-        <div class="control">
-          <label>Prior — P(malade) <span class="v" id="pPriorV">10 %</span></label>
-          <input type="range" id="pPrior" min="1" max="500" value="100">
-        </div>
-        <div class="control">
-          <label>Sensibilité <span class="v" id="pSensV">0,99</span></label>
-          <input type="range" id="pSens" min="50" max="100" value="99">
-        </div>
-        <div class="control">
-          <label>Faux positifs <span class="v" id="pFpV">0,05</span></label>
-          <input type="range" id="pFp" min="0" max="50" value="5">
-        </div>
+    <div class="control" style="margin: 0;">
+      <div class="control-head">
+        <span class="control-label">Sensibilité</span>
+        <span class="control-value" id="pSensV">0,99</span>
       </div>
-
-      <div class="card" style="margin-top: var(--gap);">
-        <h3>BAYES THÉORIQUE</h3>
-        <div class="stat"><span class="label">P(test+)</span><span class="value cyan" id="pTheoryE">—</span></div>
-        <div class="stat"><span class="label">P(malade | test+)</span><span class="value gold" id="pTheoryCE">—</span></div>
+      <input type="range" id="pSens" min="50" max="100" value="99">
+    </div>
+    <div class="control" style="margin: 0;">
+      <div class="control-head">
+        <span class="control-label">Faux positifs</span>
+        <span class="control-value" id="pFpV">0,05</span>
       </div>
+      <input type="range" id="pFp" min="0" max="50" value="5">
+    </div>
+    <button class="btn alt" id="pPause">PAUSE</button>
+    <button class="btn alt" id="pReset">RESET</button>
+  </div>
 
-      <div class="card" style="margin-top: var(--gap);">
-        <h3>OBSERVÉ EN DIRECT</h3>
-        <div class="stat"><span class="label">Particules</span><span class="value" id="pTotal">0</span></div>
-        <div class="stat"><span class="label">Test + observés</span><span class="value cyan" id="pPos">0</span></div>
-        <div class="stat"><span class="label">… dont malades</span><span class="value rose" id="pMalPos">0</span></div>
-        <div class="stat"><span class="label"><b>Ratio observé</b></span><span class="value gold" id="pRatio">—</span></div>
-      </div>
-
-      <div style="display: flex; gap: 8px; margin-top: var(--gap);">
-        <button class="btn alt" id="pPause" style="flex:1">PAUSE</button>
-        <button class="btn alt" id="pReset" style="flex:1">RESET</button>
+  <div class="paths-stats">
+    <div class="stat-section">
+      <h4>Bayes théorique</h4>
+      <div style="display: flex; gap: 60px; flex-wrap: wrap;">
+        <div>
+          <div class="control-label" style="font-size: 9px;">P(test+)</div>
+          <div class="big-stat cyan" id="pTheoryE">—</div>
+        </div>
+        <div>
+          <div class="control-label" style="font-size: 9px;">P(malade | test+)</div>
+          <div class="big-stat gold" id="pTheoryCE">—</div>
+        </div>
       </div>
     </div>
-
+    <div class="stat-section">
+      <h4>Observé en direct</h4>
+      <div class="live-row">
+        <span class="mute">Particules envoyées :</span> <strong id="pTotal">0</strong>
+      </div>
+      <div class="live-row">
+        <span class="mute">Test + observés :</span> <strong id="pPos">0</strong>
+        &nbsp;&nbsp;<span class="mute">dont malades :</span> <strong id="pMalPos">0</strong>
+      </div>
+      <div class="control-label" style="font-size: 9px; margin-top: 14px; display: inline-block;">RATIO OBSERVÉ</div>
+      <div class="big-stat clay" id="pRatio">—</div>
+    </div>
   </div>
 </section>
 
-<!-- ===================== MATHS DERRIÈRE ===================== -->
+<!-- ============================================ MATH -->
 <section class="page" id="page-math">
-  <h1 class="page-title">Les maths derrière.</h1>
-  <p class="subtitle">La formule de Bayes — décortiquée, illustrée, démontrée par l'exemple.</p>
+  <span class="kicker"><span class="num">Nº 06</span>LES MATHS, EN CLAIR</span>
+  <h1 class="page-title">La formule,<br><em>terme par terme.</em></h1>
 
-  <div class="math-formula-big">
-    <div class="eq">
-      P(<span class="C">C</span><span style="color:var(--mute)">|</span><span class="E">E</span>) =
-      <span class="small">
-        P(<span class="E">E</span><span style="color:var(--mute)">|</span><span class="C">C</span>) · P(<span class="C">C</span>) / P(<span class="E">E</span>)
-      </span>
+  <div class="formula-display">
+    P(<span class="C">C</span> | <span class="E">E</span>) = P(<span class="E">E</span> | <span class="C">C</span>) · P(<span class="C">C</span>) / P(<span class="E">E</span>)
+  </div>
+
+  <div class="quote-block">
+    « Bayes est appelée la formule de la probabilité des causes : elle permet de
+    <strong>remonter le temps</strong>, c'est-à-dire de calculer la probabilité d'une cause
+    sachant celle de sa conséquence. »
+  </div>
+
+  <div class="term-columns">
+    <div class="term-col" style="color: var(--ochre);">
+      <div class="letter">C</div>
+      <div class="rule"></div>
+      <div class="name">PRIOR</div>
+      <div class="desc">Ce qu'on sait avant. Le taux de base : ex. 1 personne malade sur 1 000.</div>
+    </div>
+    <div class="term-col" style="color: var(--sage);">
+      <div class="letter">E&thinsp;|&thinsp;C</div>
+      <div class="rule"></div>
+      <div class="name">VRAISEMBLANCE</div>
+      <div class="desc">Si la cause est vraie, à quelle fréquence l'effet apparaît-il ?</div>
+    </div>
+    <div class="term-col" style="color: var(--sage);">
+      <div class="letter">E</div>
+      <div class="rule"></div>
+      <div class="name">ÉVIDENCE</div>
+      <div class="desc">Fréquence de l'effet, toutes causes confondues. Vrais + faux positifs.</div>
+    </div>
+    <div class="term-col" style="color: var(--ochre);">
+      <div class="letter">C&thinsp;|&thinsp;E</div>
+      <div class="rule"></div>
+      <div class="name">POSTERIOR</div>
+      <div class="desc">La réponse cherchée. La proba de la cause sachant l'effet observé.</div>
     </div>
   </div>
 
-  <blockquote>
-    « Bayes est appelée la formule de la probabilité des causes :
-    <b>elle permet de remonter le temps</b>, c'est-à-dire de calculer
-    la probabilité d'une cause sachant celle de sa conséquence. »
-  </blockquote>
-
-  <h2>Les 4 termes — un par un</h2>
-
-  <div class="grid-2">
-    <div class="card">
-      <h3 style="color: var(--gold);">P(C | E) — POSTERIOR</h3>
-      <p style="margin: 0; font-size: 14px; line-height: 1.7;">
-        La probabilité que la <b>cause</b> soit vraie, <b>sachant</b> qu'on a observé l'<b>effet</b>.
-        C'est la valeur que <b>tous nos simulateurs</b> calculent et affichent en grand.
-      </p>
-    </div>
-    <div class="card">
-      <h3 style="color: var(--cyan);">P(E | C) — VRAISEMBLANCE</h3>
-      <p style="margin: 0; font-size: 14px; line-height: 1.7;">
-        Si la cause est vraie, à quelle fréquence l'effet apparaît-il ?
-        C'est la <b>fiabilité</b> de chaque indice — réglée par les sliders.
-      </p>
-    </div>
-    <div class="card">
-      <h3 style="color: var(--gold);">P(C) — PRIOR</h3>
-      <p style="margin: 0; font-size: 14px; line-height: 1.7;">
-        Ce qu'on savait <b>avant</b> d'observer l'effet. Le taux de base.
-        Pour une maladie rare : 1/1000. Pour le spam dans une boîte : ~30 %.
-      </p>
-    </div>
-    <div class="card">
-      <h3 style="color: var(--mute);">P(E) — ÉVIDENCE</h3>
-      <p style="margin: 0; font-size: 14px; line-height: 1.7;">
-        À quelle fréquence on observe l'effet, <b>toutes causes confondues</b>.
-        Calculé par : P(E|C)·P(C) + P(E|¬C)·P(¬C).
-      </p>
-    </div>
-  </div>
-
-  <h2>Le pipeline de notre projet</h2>
+  <h2 class="section-h2">Le pipeline de <em>notre projet.</em></h2>
   <div class="pipeline">
-    <div class="step"><div class="n">1</div><h4>ENTRÉES</h4><p>Sliders, cases à cocher, comportement utilisateur</p></div>
-    <div class="step"><div class="n">2</div><h4>MODÈLE</h4><p>P(C|E) = P(E|C)·P(C) / P(E)</p></div>
-    <div class="step"><div class="n">3</div><h4>ALGO</h4><p>Forme « odds » — JS pur, ~30 lignes</p></div>
-    <div class="step"><div class="n">4</div><h4>POSTERIOR</h4><p>P(C|E) ∈ [0 ; 1]</p></div>
-    <div class="step"><div class="n">5</div><h4>UI</h4><p>Jauge, verdict, adaptation</p></div>
+    <div class="step"><h4>ENTRÉES</h4><p>Sliders, cases à cocher, comportement utilisateur.</p></div>
+    <div class="step"><h4>MODÈLE</h4><p>P(C|E) = P(E|C)·P(C) / P(E)</p></div>
+    <div class="step"><h4>ALGO</h4><p>Forme « cote » : JS pur, 8 lignes.</p></div>
+    <div class="step"><h4>POSTERIOR</h4><p>P(C|E) ∈ [0 ; 1]</p></div>
+    <div class="step"><h4>UI</h4><p>Jauge, verdict, adaptation.</p></div>
   </div>
 
-  <h2>L'algorithme « odds » — code source</h2>
-  <pre><span class="cm">// Forme « cote » : multiplications stables, ordre indifférent</span>
+  <h2 class="section-h2">L'algorithme, <em>en 8 lignes.</em></h2>
+<pre><span class="cm">// Forme « cote » : multiplications stables, ordre indifférent</span>
 <span class="kw">function</span> bayesUpdate(prior, evidences) {
   <span class="kw">let</span> odds = prior / (1 - prior);          <span class="cm">// cote initiale</span>
   <span class="kw">for</span> (<span class="kw">const</span> e <span class="kw">of</span> evidences.filter(e =&gt; e.on)) {
@@ -767,49 +1131,38 @@
   <span class="kw">return</span> odds / (1 + odds);                <span class="cm">// → probabilité</span>
 }</pre>
 
-  <h2>Exemple chiffré — le test médical</h2>
-  <div class="card">
-    <p style="font-size: 14px; line-height: 1.8;">
-      Soit une maladie rare touchant <b>1 personne sur 1000</b> (P(C) = 0,001),
-      avec un test <b>fiable à 99 %</b> (P(E|C) = 0,99) et <b>1 % de faux positifs</b>
-      (P(E|¬C) = 0,01).
-    </p>
-    <pre style="margin-top: 12px;">P(test+) = 0,99 × 0,001 + 0,01 × 0,999  =  0,01098
-P(malade | test+) = (0,99 × 0,001) / 0,01098  ≈  0,090   →   <b style="color:var(--gold)">~9 %</b></pre>
-    <p style="font-size: 13px; color: var(--mute); font-style: italic; margin-top: 12px;">
-      Surprise : un test très fiable, sur une maladie rare, ne donne que <b>9 %</b> de probabilité d'être malade.
-      Le prior (taux de base) écrase la vraisemblance.
-    </p>
-  </div>
-
+  <h2 class="section-h2">L'exemple <em>chiffré.</em></h2>
+  <p class="math-prose">
+    Soit une maladie rare touchant <strong>1 personne sur 1 000</strong> (P(C) = 0,001),
+    avec un test <strong>fiable à 99 %</strong> (P(E|C) = 0,99) et <strong>1 % de faux positifs</strong>
+    (P(E|¬C) = 0,01).
+  </p>
+<pre>P(test+) = 0,99 × 0,001 + 0,01 × 0,999  =  0,01098
+P(malade | test+) = (0,99 × 0,001) / 0,01098  ≈  0,090   →   <span class="em">~9 %</span></pre>
+  <p class="math-prose">
+    Surprise : un test très fiable, sur une maladie rare, ne donne que <em>9 %</em>
+    de probabilité d'être malade. Le prior écrase la vraisemblance.
+  </p>
 </section>
-
-<footer class="foot">
-  Simulateur bayésien — Pôle Data &amp; Décision · Bachelor 3 Web · Abdoulaye &amp; Mathis
-</footer>
 
 </main>
 
+<footer class="foot">
+  SIMULATEUR BAYÉSIEN &middot; PÔLE DATA &amp; DÉCISION &middot; <em>ABDOULAYE &amp; MATHIS</em>
+</footer>
+
 <script>
-//========================= ROUTER =========================
+//================ ROUTER ================
 const tabs = document.querySelectorAll('#tabs button');
 const pages = document.querySelectorAll('.page');
 function go(name) {
   tabs.forEach(t => t.classList.toggle('active', t.dataset.page === name));
   pages.forEach(p => p.classList.toggle('active', p.id === 'page-' + name));
   window.scrollTo({ top: 0, behavior: 'smooth' });
-  // Si on arrive sur l'animation des chemins, ré-ajuster le canvas
-  // (sinon getBoundingClientRect retourne 0 quand l'onglet était caché)
   if (name === 'paths') {
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        if (typeof fitCanvas === 'function') {
-          fitCanvas();
-          // Repartir propre — les anciennes particules avaient des coords à 0,0
-          if (typeof pReset === 'function') pReset();
-        }
-      });
-    });
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      if (typeof fitCanvas === 'function') { fitCanvas(); pReset(); }
+    }));
   }
 }
 tabs.forEach(t => t.addEventListener('click', () => go(t.dataset.page)));
@@ -817,135 +1170,187 @@ document.querySelectorAll('[data-go]').forEach(el => {
   el.addEventListener('click', () => go(el.dataset.go));
 });
 
-//========================= BAYES ENGINE =========================
+//================ BAYES ENGINE ================
 function bayesUpdate(prior, evidences) {
   let odds = prior / (1 - prior);
-  for (const e of evidences) {
-    if (e.on) odds *= e.pIfCause / e.pIfNotCause;
-  }
+  for (const e of evidences) if (e.on) odds *= e.pIfCause / e.pIfNotCause;
   return odds / (1 + odds);
 }
 
-function setRing(el, pct) {
-  const C = 2 * Math.PI * 44;
-  el.style.strokeDasharray  = C;
-  el.style.strokeDashoffset = C * (1 - pct);
-  // Couleur selon valeur
-  if (pct < 0.33)      el.style.stroke = 'var(--green)';
-  else if (pct < 0.66) el.style.stroke = 'var(--gold)';
-  else                 el.style.stroke = 'var(--rose)';
+function setResultClass(el, pct) {
+  el.classList.remove('high', 'mid', 'low');
+  if (pct > 0.66) el.classList.add('high');
+  else if (pct > 0.33) el.classList.add('mid');
+  else el.classList.add('low');
 }
 
-//========================= SPAM SIM =========================
+//================ SPAM ================
 const spamFeatures = [
-  { id: 's1', name: 'mot « gratuit »', pIfCause: 0.55, pIfNotCause: 0.04 },
-  { id: 's2', name: 'expéditeur inconnu',           pIfCause: 0.70, pIfNotCause: 0.20 },
-  { id: 's3', name: 'lien raccourci (bit.ly...)',   pIfCause: 0.50, pIfNotCause: 0.05 },
-  { id: 's4', name: "fautes d'orthographe",         pIfCause: 0.65, pIfNotCause: 0.15 },
-  { id: 's5', name: 'urgence du ton (« vite ! »)',   pIfCause: 0.60, pIfNotCause: 0.10 },
-  { id: 's6', name: 'pièce jointe .exe',            pIfCause: 0.30, pIfNotCause: 0.01 },
+  { id: 's1', name: 'mot « gratuit »',                pIfCause: 0.55, pIfNotCause: 0.04 },
+  { id: 's2', name: 'expéditeur inconnu',             pIfCause: 0.70, pIfNotCause: 0.20 },
+  { id: 's3', name: 'lien raccourci (bit.ly…)',       pIfCause: 0.50, pIfNotCause: 0.05 },
+  { id: 's4', name: "fautes d'orthographe",           pIfCause: 0.65, pIfNotCause: 0.15 },
+  { id: 's5', name: "urgence du ton (« vite ! »)",    pIfCause: 0.60, pIfNotCause: 0.10 },
+  { id: 's6', name: "pièce jointe .exe",              pIfCause: 0.30, pIfNotCause: 0.01 },
 ];
+
 function buildSpamFeats() {
   const c = document.getElementById('spamFeats');
   c.innerHTML = '';
   spamFeatures.forEach(f => {
     const lr = (f.pIfCause / f.pIfNotCause).toFixed(1);
-    const wrap = document.createElement('div');
+    const wrap = document.createElement('label');
     wrap.className = 'check';
-    wrap.innerHTML = `<input type="checkbox" id="${f.id}"><label for="${f.id}">${f.name}</label><span class="lr">×${lr}</span>`;
+    wrap.setAttribute('for', f.id);
+    wrap.innerHTML =
+      `<input type="checkbox" id="${f.id}">` +
+      `<span class="cbx"></span>` +
+      `<span class="label-text">${f.name}</span>` +
+      `<span class="ratio">×${lr}</span>`;
     c.appendChild(wrap);
     wrap.querySelector('input').addEventListener('change', updateSpam);
   });
 }
+
 function updateSpam() {
   const prior = (+document.getElementById('spamPrior').value) / 100;
-  document.getElementById('spamPriorV').textContent = (prior*100).toFixed(0) + ' %';
-  const evidences = spamFeatures.map(f => ({ ...f, on: document.getElementById(f.id).checked }));
+  document.getElementById('spamPriorV').textContent = Math.round(prior * 100) + ' %';
+  const evidences = spamFeatures.map(f => ({
+    ...f, on: document.getElementById(f.id).checked
+  }));
   const post = bayesUpdate(prior, evidences);
 
-  document.getElementById('spamPct').textContent = (post*100).toFixed(0) + ' %';
-  setRing(document.getElementById('spamRing'), post);
+  const pctEl = document.getElementById('spamPct');
+  pctEl.textContent = Math.round(post * 100) + ' %';
+  setResultClass(pctEl, post);
 
-  document.getElementById('spamBarPrior').style.width = (prior*100)+'%';
-  document.getElementById('spamBarPriorV').textContent = (prior*100).toFixed(0)+' %';
-  document.getElementById('spamBarPost').style.width  = (post*100)+'%';
-  document.getElementById('spamBarPostV').textContent = (post*100).toFixed(0)+' %';
+  document.getElementById('spamBPrior').textContent = Math.round(prior * 100) + ' %';
+  document.getElementById('spamBPost').textContent  = Math.round(post * 100) + ' %';
 
   const v = document.getElementById('spamVerdict');
-  if (post > 0.7)      { v.className = 'verdict high'; v.textContent = '⚠ SPAM probable'; }
-  else if (post > 0.4) { v.className = 'verdict mid';  v.textContent = '? Indécis — à examiner'; }
-  else                 { v.className = 'verdict low';  v.textContent = '✓ Plutôt légitime'; }
+  v.classList.remove('high', 'low');
+  if (post > 0.7)      { v.classList.add('high'); v.textContent = 'Très probablement un spam.'; }
+  else if (post > 0.4) { v.textContent = 'Indécis : à examiner de plus près.'; }
+  else                 { v.classList.add('low');  v.textContent = 'Plutôt légitime.'; }
 }
 buildSpamFeats();
 document.getElementById('spamPrior').addEventListener('input', updateSpam);
 updateSpam();
 
-//========================= MEDICAL SIM =========================
+//================ MEDICAL ================
+// Build dot grid (1000 dots)
+const medGrid = document.getElementById('medGrid');
+for (let i = 0; i < 1000; i++) {
+  const d = document.createElement('div');
+  d.className = 'dot';
+  medGrid.appendChild(d);
+}
+const medDots = medGrid.querySelectorAll('.dot');
+
+// Pseudo-random but deterministic positions for highlighting
+function pickPositions(count, total, seed) {
+  // simple LCG
+  let s = seed >>> 0 || 1;
+  const next = () => {
+    s = (s * 1664525 + 1013904223) >>> 0;
+    return s / 4294967296;
+  };
+  const set = new Set();
+  while (set.size < count && set.size < total) {
+    set.add(Math.floor(next() * total));
+  }
+  return Array.from(set);
+}
+
 function updateMedical() {
   const prev = (+document.getElementById('medPrev').value) / 10000;
   const sens = (+document.getElementById('medSens').value) / 100;
   const fp   = (+document.getElementById('medFp').value)   / 100;
 
-  document.getElementById('medPrevV').textContent = (prev*100).toFixed(2) + ' %';
-  document.getElementById('medSensV').textContent = (sens*100).toFixed(0) + ' %';
-  document.getElementById('medFpV').textContent   = (fp*100).toFixed(0) + ' %';
+  document.getElementById('medPrevV').textContent = (prev * 100).toFixed(2) + ' %';
+  document.getElementById('medSensV').textContent = Math.round(sens * 100) + ' %';
+  document.getElementById('medFpV').textContent   = Math.round(fp * 100) + ' %';
 
-  const pE  = sens * prev + fp * (1 - prev);
+  const pE   = sens * prev + fp * (1 - prev);
   const post = pE > 0 ? (sens * prev) / pE : 0;
 
-  document.getElementById('medPct').textContent = (post*100).toFixed(1) + ' %';
-  setRing(document.getElementById('medRing'), post);
-
-  document.getElementById('medCalc').innerHTML =
-    `P(test+) = ${sens.toFixed(2)} × ${prev.toFixed(4)}\n         + ${fp.toFixed(2)} × ${(1-prev).toFixed(4)}\n         = <b style="color:var(--cyan)">${pE.toFixed(5)}</b>\n\nP(malade | test+) = (${sens.toFixed(2)} × ${prev.toFixed(4)}) / ${pE.toFixed(5)}\n                  ≈ <b style="color:var(--gold)">${(post*100).toFixed(2)} %</b>`;
+  const pctEl = document.getElementById('medPct');
+  pctEl.textContent = (post * 100).toFixed(1) + ' %';
+  setResultClass(pctEl, post);
 
   const v = document.getElementById('medVerdict');
-  if (post > 0.7)      { v.className = 'verdict high'; v.textContent = '⚠ Forte probabilité — confirmer'; }
-  else if (post > 0.4) { v.className = 'verdict mid';  v.textContent = '? Probabilité significative'; }
-  else                 { v.className = 'verdict low';  v.textContent = '✓ Plutôt rassurant — re-tester'; }
+  v.classList.remove('high', 'low');
+  if (post > 0.7)      { v.classList.add('high'); v.textContent = 'Forte probabilité : à confirmer.'; }
+  else if (post > 0.4) { v.textContent = 'Probabilité significative.'; }
+  else                 { v.classList.add('low');  v.textContent = 'Plutôt rassurant : re-tester.'; }
+
+  // Dot grid update
+  const nMal = Math.round(prev * 1000 * sens);   // vrais positifs détectés
+  const nFP  = Math.round((1 - prev) * 1000 * fp);
+  const maxMal = Math.min(nMal, 1000);
+  const maxFP  = Math.min(nFP, 1000 - maxMal);
+
+  medDots.forEach(d => d.className = 'dot');
+  const malPos = pickPositions(maxMal, 1000, 13);
+  const usedSet = new Set(malPos);
+  malPos.forEach(idx => medDots[idx].classList.add('malade'));
+
+  // pick FP positions excluding malade ones
+  let s = 71;
+  let added = 0;
+  while (added < maxFP) {
+    s = (s * 1664525 + 1013904223) >>> 0;
+    const idx = Math.floor((s / 4294967296) * 1000);
+    if (!usedSet.has(idx)) {
+      usedSet.add(idx);
+      medDots[idx].classList.add('fauxpos');
+      added++;
+    }
+  }
+  document.getElementById('medMaladeCount').textContent = maxMal;
+  document.getElementById('medFauxCount').textContent   = maxFP;
 }
-['medPrev','medSens','medFp'].forEach(id => document.getElementById(id).addEventListener('input', updateMedical));
+['medPrev','medSens','medFp'].forEach(id =>
+  document.getElementById(id).addEventListener('input', updateMedical));
 updateMedical();
 
-//========================= AGE DETECTION =========================
-// Prior : 50 % senior (catégorie binaire pour simplifier)
-// Indices : reaction time, click accuracy, font preferences
+//================ AGE DETECTION ================
 const agePrior = 0.5;
-let ageEvidences = [];   // accumulés
+let ageEvidences = [];
 let ageHits = 0;
 let ageStarted = false;
 let currentTarget = null;
 let targetSpawnTime = 0;
-let firstClickTime = null;
 
 function ageRecompute() {
   const post = bayesUpdate(agePrior, ageEvidences);
-  document.getElementById('agePct').textContent = (post*100).toFixed(0) + ' %';
-  setRing(document.getElementById('ageRing'), post);
-  const odds = post / (1 - post);
-  document.getElementById('ageOdds').textContent = odds.toFixed(2);
-  // Adaptation
+  const pctEl = document.getElementById('agePct');
+  pctEl.textContent = Math.round(post * 100) + ' %';
+  setResultClass(pctEl, post);
+
   if (post > 0.65 && !document.body.classList.contains('senior-mode')) {
     document.body.classList.add('senior-mode');
     document.getElementById('adaptBanner').classList.add('show');
-    document.getElementById('ageMode').textContent = 'mode senior';
+    document.getElementById('ageMode').textContent = 'Mode senior activé.';
   } else if (post < 0.35 && document.body.classList.contains('senior-mode')) {
     document.body.classList.remove('senior-mode');
     document.getElementById('adaptBanner').classList.remove('show');
-    document.getElementById('ageMode').textContent = 'standard';
+    document.getElementById('ageMode').textContent = 'Mode standard.';
+  } else if (post >= 0.35 && post <= 0.65) {
+    document.getElementById('ageMode').textContent = 'Mode standard.';
   }
 }
 
-function ageRender() {
+function ageRenderIndices() {
   const c = document.getElementById('ageIndices');
   if (ageEvidences.length === 0) {
-    c.innerHTML = '<div class="ix" style="color: var(--mute); font-style: italic;">Aucun indice encore — démarrez le jeu.</div>';
+    c.innerHTML = '<li class="empty">Aucun indice : démarrez le jeu.</li>';
     return;
   }
   c.innerHTML = ageEvidences.map(e => {
     const lr = e.pIfCause / e.pIfNotCause;
-    const tag = lr > 1 ? `× ${lr.toFixed(2)} ↑` : `× ${lr.toFixed(2)} ↓`;
-    return `<div class="ix"><span>${e.name}</span><span class="lr">${tag}</span></div>`;
+    const sign = lr > 1 ? '↑' : '↓';
+    return `<li><span>${e.name}</span><span class="lr">× ${lr.toFixed(2)} ${sign}</span></li>`;
   }).join('');
 }
 
@@ -953,87 +1358,123 @@ function ageReset() {
   ageEvidences = [];
   ageHits = 0;
   ageStarted = false;
-  currentTarget && currentTarget.remove();
+  if (currentTarget) currentTarget.remove();
   currentTarget = null;
   document.getElementById('targetZone').innerHTML = '';
   document.getElementById('ageHits').textContent = '0';
-  document.getElementById('ageInstruction').textContent = "Cliquez « DÉMARRER » et tapez sur chaque pastille dorée le plus vite possible.";
+  document.getElementById('ageInstruction').textContent =
+    "Cliquez « DÉMARRER » et tapez sur chaque cible le plus vite possible.";
   document.body.classList.remove('senior-mode');
   document.getElementById('adaptBanner').classList.remove('show');
-  document.getElementById('ageMode').textContent = 'standard';
+  document.getElementById('ageMode').textContent = 'Mode standard.';
   ageRecompute();
-  ageRender();
+  ageRenderIndices();
 }
 
 function spawnTarget() {
   if (ageHits >= 6) {
-    document.getElementById('ageInstruction').textContent = "Test terminé — voyez le verdict à droite.";
+    document.getElementById('ageInstruction').textContent =
+      "Test terminé : voyez le verdict à droite.";
     return;
   }
   const zone = document.getElementById('targetZone');
   const z = zone.getBoundingClientRect();
+  const isSenior = document.body.classList.contains('senior-mode');
+  const targetSize = isSenior ? 88 : 54;
   const t = document.createElement('button');
   t.className = 'target';
-  t.textContent = (ageHits + 1);
-  t.style.left = Math.random() * Math.max(0, z.width - 90) + 'px';
-  t.style.top  = Math.random() * Math.max(0, z.height - 90) + 'px';
+  t.textContent = String(ageHits + 1);
+  t.style.left = Math.random() * Math.max(0, z.width - targetSize) + 'px';
+  t.style.top  = Math.random() * Math.max(0, z.height - targetSize) + 'px';
   zone.appendChild(t);
   currentTarget = t;
   targetSpawnTime = performance.now();
-
   t.addEventListener('click', () => {
     const reaction = performance.now() - targetSpawnTime;
-    if (firstClickTime === null) firstClickTime = reaction;
     addAgeEvidence(reaction);
     t.remove();
     ageHits++;
     document.getElementById('ageHits').textContent = ageHits;
-    setTimeout(spawnTarget, 250);
+    setTimeout(spawnTarget, 280);
   });
 }
 
 function addAgeEvidence(rt) {
-  // Modèle simple :
-  // - rt < 600ms     : très jeune     (P(rt|senior)/P(rt|jeune) = 0.3)
-  // - rt 600-1000    : jeune          (~ 0.6)
-  // - rt 1000-1500   : neutre         (~ 1.0)
-  // - rt 1500-2500   : senior         (~ 1.7)
-  // - rt > 2500      : très senior    (~ 2.5)
   let lr, tag;
-  if (rt < 600)        { lr = 0.30; tag = 'clic ultra-rapide ('+Math.round(rt)+'ms)'; }
-  else if (rt < 1000)  { lr = 0.60; tag = 'clic rapide ('+Math.round(rt)+'ms)'; }
-  else if (rt < 1500)  { lr = 1.00; tag = 'clic moyen ('+Math.round(rt)+'ms)'; }
-  else if (rt < 2500)  { lr = 1.70; tag = 'clic lent ('+Math.round(rt)+'ms)'; }
-  else                 { lr = 2.50; tag = 'clic très lent ('+Math.round(rt)+'ms)'; }
-  ageEvidences.push({
-    name: tag,
-    pIfCause:    lr,    // P(observation | senior)
-    pIfNotCause: 1.0,
-    on: true
-  });
+  if (rt < 600)       { lr = 0.30; tag = 'clic ultra-rapide (' + Math.round(rt) + ' ms)'; }
+  else if (rt < 1000) { lr = 0.60; tag = 'clic rapide ('       + Math.round(rt) + ' ms)'; }
+  else if (rt < 1500) { lr = 1.00; tag = 'clic moyen ('        + Math.round(rt) + ' ms)'; }
+  else if (rt < 2500) { lr = 1.70; tag = 'clic lent ('         + Math.round(rt) + ' ms)'; }
+  else                { lr = 2.50; tag = 'clic très lent ('    + Math.round(rt) + ' ms)'; }
+  ageEvidences.push({ name: tag, pIfCause: lr, pIfNotCause: 1.0, on: true });
   ageRecompute();
-  ageRender();
+  ageRenderIndices();
 }
 
 document.getElementById('ageStart').addEventListener('click', () => {
   if (ageStarted) return;
   ageStarted = true;
-  document.getElementById('ageInstruction').textContent = "Cliquez sur chaque pastille dorée — soyez naturel(le) !";
+  document.getElementById('ageInstruction').textContent =
+    "Cliquez sur chaque cible, soyez naturel(le) !";
   spawnTarget();
 });
 document.getElementById('ageReset').addEventListener('click', ageReset);
 ageRecompute();
 
-//========================= PATHS ANIMATION =========================
+//================ PATHS ANIMATION ================
 const cv = document.getElementById('pathsCanvas');
 const ctx = cv.getContext('2d');
+
+// Helpers couleur
+function rgba(hex, a) {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  return `rgba(${r},${g},${b},${a})`;
+}
+function roundRect(x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + w, y, x + w, y + h, r);
+  ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r);
+  ctx.arcTo(x, y, x + w, y, r);
+  ctx.closePath();
+}
+
+// Champ d'étoiles (précomputées)
+const stars = [];
+for (let i = 0; i < 220; i++) {
+  stars.push({
+    x: Math.random(),
+    y: Math.random(),
+    size: Math.random() * 1.4 + 0.3,
+    base: Math.random() * 0.5 + 0.25,
+    twPhase: Math.random() * Math.PI * 2,
+    twSpeed: 0.0008 + Math.random() * 0.0018,
+  });
+}
+// Quelques étoiles plus grosses, plus lumineuses
+const bigStars = [];
+for (let i = 0; i < 12; i++) {
+  bigStars.push({
+    x: Math.random(),
+    y: Math.random(),
+    size: Math.random() * 1.5 + 1.2,
+    base: 0.7 + Math.random() * 0.3,
+    twPhase: Math.random() * Math.PI * 2,
+    twSpeed: 0.0006 + Math.random() * 0.0012,
+    hue: Math.random() > 0.5 ? '#FFE4B0' : '#B8C8FF',
+  });
+}
+let starTime = 0;
 
 function fitCanvas() {
   const ratio = window.devicePixelRatio || 1;
   const r = cv.getBoundingClientRect();
   cv.width  = r.width  * ratio;
   cv.height = r.height * ratio;
-  ctx.setTransform(ratio,0,0,ratio,0,0);
+  ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
 }
 fitCanvas();
 window.addEventListener('resize', fitCanvas);
@@ -1049,26 +1490,27 @@ function pReadParams() {
   pP_C    = (+document.getElementById('pPrior').value) / 1000;
   pP_EgC  = (+document.getElementById('pSens').value)  / 100;
   pP_EgnC = (+document.getElementById('pFp').value)    / 100;
-  document.getElementById('pPriorV').textContent = (pP_C*100).toFixed(1) + ' %';
+  document.getElementById('pPriorV').textContent = (pP_C * 100).toFixed(1) + ' %';
   document.getElementById('pSensV').textContent  = pP_EgC.toFixed(2);
   document.getElementById('pFpV').textContent    = pP_EgnC.toFixed(2);
   pTheoryUpdate();
 }
-['pPrior','pSens','pFp'].forEach(id => document.getElementById(id).addEventListener('input', pReadParams));
+['pPrior','pSens','pFp'].forEach(id =>
+  document.getElementById(id).addEventListener('input', pReadParams));
 
 function pTheoryUpdate() {
-  const pE  = pP_EgC * pP_C + pP_EgnC * (1 - pP_C);
+  const pE = pP_EgC * pP_C + pP_EgnC * (1 - pP_C);
   const pCE = pE > 0 ? (pP_EgC * pP_C) / pE : 0;
   document.getElementById('pTheoryE').textContent  = pE.toFixed(4);
-  document.getElementById('pTheoryCE').textContent = (pCE*100).toFixed(2) + ' %';
+  document.getElementById('pTheoryCE').textContent = (pCE * 100).toFixed(2) + ' %';
 }
 function pStatsUpdate() {
   document.getElementById('pTotal').textContent = pNTotal;
   document.getElementById('pPos').textContent   = pNPos;
-  document.getElementById('pMalPos').textContent= pNMalPos;
+  document.getElementById('pMalPos').textContent = pNMalPos;
   document.getElementById('pRatio').textContent = pNPos > 0
-    ? ((pNMalPos/pNPos)*100).toFixed(1) + ' %'
-    : '—';
+    ? ((pNMalPos / pNPos) * 100).toFixed(1) + ' %'
+    : '-';
 }
 function pReset() {
   pNTotal = pNPos = pNMalPos = 0;
@@ -1086,14 +1528,14 @@ function pLayout() {
   return {
     W: r.width, H: r.height,
     sourceX: 60,
-    sainY:    r.height * 0.30,
-    maladeY:  r.height * 0.70,
-    gateX:    r.width * 0.50,
-    posTopY:  r.height * 0.20,
-    posBotY:  r.height * 0.50,
-    negTopY:  r.height * 0.55,
-    negBotY:  r.height * 0.85,
-    sinkX:    r.width - 60,
+    sainY:   r.height * 0.30,
+    maladeY: r.height * 0.70,
+    gateX:   r.width * 0.50,
+    posTopY: r.height * 0.20,
+    posBotY: r.height * 0.50,
+    negTopY: r.height * 0.55,
+    negBotY: r.height * 0.85,
+    sinkX:   r.width - 60,
   };
 }
 
@@ -1103,16 +1545,15 @@ function pSpawn() {
   const positif = malade ? Math.random() < pP_EgC : Math.random() < pP_EgnC;
   const startY = malade ? l.maladeY : l.sainY;
   const noise = (Math.random() - 0.5) * 30;
-  const midY  = startY + (positif ? -1 : 1) * (Math.random() * 30 + 10);
+  const midY = startY + (positif ? -1 : 1) * (Math.random() * 30 + 10);
   let endY;
   if (positif) endY = l.posTopY + Math.random() * (l.posBotY - l.posTopY);
   else         endY = l.negTopY + Math.random() * (l.negBotY - l.negTopY);
-
   pParticles.push({
     t: 0, speed: 0.0035 + Math.random() * 0.003,
     x0: l.sourceX + 8, y0: startY + noise,
-    x1: l.gateX,        y1: midY,
-    x2: l.sinkX,        y2: endY,
+    x1: l.gateX,       y1: midY,
+    x2: l.sinkX,       y2: endY,
     malade, positif, counted: false, fade: 1,
   });
   pNTotal++;
@@ -1120,7 +1561,6 @@ function pSpawn() {
 
 function pTick(dt) {
   if (pPaused) return;
-  // Ne tourner que si le canvas est visible (dimensions > 0)
   const r = cv.getBoundingClientRect();
   if (r.width < 10 || r.height < 10) return;
   let toSpawn = 0.04 * dt;
@@ -1143,108 +1583,329 @@ function pTick(dt) {
 
 function bezier(t, x0, y0, x1, y1, x2, y2) {
   const u = 1 - t;
-  return { x: u*u*x0 + 2*u*t*x1 + t*t*x2,
-           y: u*u*y0 + 2*u*t*y1 + t*t*y2 };
+  return {
+    x: u*u*x0 + 2*u*t*x1 + t*t*x2,
+    y: u*u*y0 + 2*u*t*y1 + t*t*y2,
+  };
+}
+// ============== DESSIN - ESPACE NOCTURNE ==============
+
+function drawSpaceBackground(l) {
+  // 1. Fond profond avec léger gradient vertical
+  const baseGrad = ctx.createLinearGradient(0, 0, 0, l.H);
+  baseGrad.addColorStop(0, '#03030F');
+  baseGrad.addColorStop(0.5, '#070818');
+  baseGrad.addColorStop(1, '#0A0A1F');
+  ctx.fillStyle = baseGrad;
+  ctx.fillRect(0, 0, l.W, l.H);
+
+  // 2. Nébuleuse violette/bleue en bas-gauche
+  const neb1 = ctx.createRadialGradient(l.W * 0.18, l.H * 0.78, 0, l.W * 0.18, l.H * 0.78, l.W * 0.55);
+  neb1.addColorStop(0, 'rgba(70, 80, 180, 0.22)');
+  neb1.addColorStop(0.4, 'rgba(80, 60, 130, 0.10)');
+  neb1.addColorStop(1, 'rgba(0, 0, 0, 0)');
+  ctx.fillStyle = neb1;
+  ctx.fillRect(0, 0, l.W, l.H);
+
+  // 3. Nébuleuse ocre en haut-droite (rappelle l'identité)
+  const neb2 = ctx.createRadialGradient(l.W * 0.85, l.H * 0.18, 0, l.W * 0.85, l.H * 0.18, l.W * 0.45);
+  neb2.addColorStop(0, 'rgba(199, 125, 44, 0.18)');
+  neb2.addColorStop(0.45, 'rgba(199, 125, 44, 0.05)');
+  neb2.addColorStop(1, 'rgba(0, 0, 0, 0)');
+  ctx.fillStyle = neb2;
+  ctx.fillRect(0, 0, l.W, l.H);
+
+  // 4. Touche cramoisie / nébuleuse rose subtle
+  const neb3 = ctx.createRadialGradient(l.W * 0.55, l.H * 0.85, 0, l.W * 0.55, l.H * 0.85, l.W * 0.3);
+  neb3.addColorStop(0, 'rgba(184, 80, 90, 0.12)');
+  neb3.addColorStop(0.5, 'rgba(184, 80, 90, 0.03)');
+  neb3.addColorStop(1, 'rgba(0, 0, 0, 0)');
+  ctx.fillStyle = neb3;
+  ctx.fillRect(0, 0, l.W, l.H);
+
+  // 5. Étoiles standard
+  starTime += 0.016;
+  for (const s of stars) {
+    const tw = Math.sin(starTime * s.twSpeed * 1000 + s.twPhase) * 0.35 + 0.65;
+    const a = s.base * tw;
+    ctx.fillStyle = `rgba(255, 245, 220, ${a})`;
+    ctx.beginPath();
+    ctx.arc(s.x * l.W, s.y * l.H, s.size, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // 6. Grosses étoiles avec halo + branches en croix
+  for (const s of bigStars) {
+    const tw = Math.sin(starTime * s.twSpeed * 1000 + s.twPhase) * 0.3 + 0.7;
+    const a = s.base * tw;
+    const cx = s.x * l.W, cy = s.y * l.H;
+    const r = s.size;
+    // halo
+    const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, r * 5);
+    g.addColorStop(0,   rgba(s.hue, a * 0.85));
+    g.addColorStop(0.4, rgba(s.hue, a * 0.18));
+    g.addColorStop(1,   rgba(s.hue, 0));
+    ctx.fillStyle = g;
+    ctx.beginPath(); ctx.arc(cx, cy, r * 5, 0, Math.PI * 2); ctx.fill();
+    // bright core
+    ctx.fillStyle = `rgba(255, 250, 240, ${a})`;
+    ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.fill();
+    // diffraction spikes
+    ctx.strokeStyle = `rgba(255, 250, 240, ${a * 0.5})`;
+    ctx.lineWidth = 0.6;
+    ctx.beginPath();
+    ctx.moveTo(cx - r * 4, cy); ctx.lineTo(cx + r * 4, cy);
+    ctx.moveTo(cx, cy - r * 4); ctx.lineTo(cx, cy + r * 4);
+    ctx.stroke();
+  }
 }
 
-function pColor(p, a) {
-  return p.malade ? `rgba(244,63,94,${a})` : `rgba(34,197,94,${a})`;
-}
+function drawCause(x, y, hex, label, pct) {
+  // Halo extérieur - lointain glow
+  const halo = ctx.createRadialGradient(x, y, 0, x, y, 70);
+  halo.addColorStop(0, rgba(hex, 0.4));
+  halo.addColorStop(0.3, rgba(hex, 0.12));
+  halo.addColorStop(1, rgba(hex, 0));
+  ctx.fillStyle = halo;
+  ctx.beginPath(); ctx.arc(x, y, 70, 0, Math.PI * 2); ctx.fill();
 
-function pDraw() {
-  const l = pLayout();
-  ctx.clearRect(0,0,l.W,l.H);
+  // Disque principal avec dégradé radial (effet planète éclairée)
+  const disc = ctx.createRadialGradient(x - 6, y - 6, 0, x, y, 26);
+  // Couleur claire au centre, base sur les bords
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  disc.addColorStop(0, `rgba(${Math.min(255, r + 60)}, ${Math.min(255, g + 60)}, ${Math.min(255, b + 60)}, 1)`);
+  disc.addColorStop(0.6, hex);
+  disc.addColorStop(1, `rgba(${Math.max(0, r - 30)}, ${Math.max(0, g - 30)}, ${Math.max(0, b - 30)}, 1)`);
+  ctx.fillStyle = disc;
+  ctx.beginPath(); ctx.arc(x, y, 24, 0, Math.PI * 2); ctx.fill();
 
-  // Cause sources
-  pDrawCause(l.sourceX, l.sainY,   '#22C55E', 'SAIN',   ((1-pP_C)*100).toFixed(1)+'%');
-  pDrawCause(l.sourceX, l.maladeY, '#F43F5E', 'MALADE', (pP_C*100).toFixed(1)+'%');
+  // Anneau atmosphérique
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.18)';
+  ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.arc(x, y, 26, 0, Math.PI * 2); ctx.stroke();
 
-  // Gate test+
-  const gateY1 = l.posTopY - 10, gateY2 = l.posBotY + 10;
-  ctx.fillStyle = 'rgba(245,158,11,0.10)';
-  ctx.strokeStyle = 'rgba(245,158,11,0.55)';
-  ctx.lineWidth = 1.5;
-  ctx.fillRect(l.gateX - 8, gateY1, 16, gateY2 - gateY1);
-  ctx.strokeRect(l.gateX - 8, gateY1, 16, gateY2 - gateY1);
-
-  ctx.fillStyle = '#F59E0B';
-  ctx.font = 'bold 11px Segoe UI';
+  // Labels
+  ctx.fillStyle = '#fff';
+  ctx.font = 'bold 10px Calibri, sans-serif';
   ctx.textAlign = 'center';
-  ctx.save();
-  ctx.translate(l.gateX, (gateY1 + gateY2) / 2);
-  ctx.rotate(-Math.PI/2);
-  ctx.fillText('TEST  +', 0, 4);
-  ctx.restore();
+  ctx.fillText(label, x, y - 1);
+  ctx.font = '9.5px Calibri, sans-serif';
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.78)';
+  ctx.fillText(pct, x, y + 11);
+}
 
-  ctx.strokeStyle = 'rgba(245,158,11,0.4)';
-  ctx.setLineDash([4, 4]);
+function drawGate(l, gateY1, gateY2) {
+  const cx = l.gateX;
+  const h = gateY2 - gateY1;
+  const mid = (gateY1 + gateY2) / 2;
+
+  // Halo extérieur (colonne large floue)
+  const haloGrad = ctx.createLinearGradient(cx - 36, 0, cx + 36, 0);
+  haloGrad.addColorStop(0,    'rgba(199, 125, 44, 0)');
+  haloGrad.addColorStop(0.5,  'rgba(199, 125, 44, 0.18)');
+  haloGrad.addColorStop(1,    'rgba(199, 125, 44, 0)');
+  ctx.fillStyle = haloGrad;
+  ctx.fillRect(cx - 36, gateY1 - 10, 72, h + 20);
+
+  // Halo secondaire plus serré
+  const halo2 = ctx.createLinearGradient(cx - 16, 0, cx + 16, 0);
+  halo2.addColorStop(0,   'rgba(255, 200, 120, 0)');
+  halo2.addColorStop(0.5, 'rgba(255, 200, 120, 0.28)');
+  halo2.addColorStop(1,   'rgba(255, 200, 120, 0)');
+  ctx.fillStyle = halo2;
+  ctx.fillRect(cx - 16, gateY1, 32, h);
+
+  // Colonne core avec coins arrondis - dégradé vertical pour effet portail
+  const coreGrad = ctx.createLinearGradient(0, gateY1, 0, gateY2);
+  coreGrad.addColorStop(0,    'rgba(255, 200, 120, 0.4)');
+  coreGrad.addColorStop(0.5,  'rgba(255, 220, 150, 0.55)');
+  coreGrad.addColorStop(1,    'rgba(255, 200, 120, 0.4)');
+  ctx.fillStyle = coreGrad;
+  roundRect(cx - 7, gateY1, 14, h, 7);
+  ctx.fill();
+
+  // Contour fin lumineux
+  ctx.strokeStyle = 'rgba(255, 230, 180, 0.85)';
+  ctx.lineWidth = 1;
+  roundRect(cx - 7, gateY1, 14, h, 7);
+  ctx.stroke();
+
+  // Ligne centrale très lumineuse
+  ctx.strokeStyle = 'rgba(255, 250, 230, 0.55)';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(cx, gateY1 + 6);
+  ctx.lineTo(cx, gateY2 - 6);
+  ctx.stroke();
+
+  // Orbes en haut et en bas (capuchons lumineux)
+  for (const oy of [gateY1, gateY2]) {
+    const og = ctx.createRadialGradient(cx, oy, 0, cx, oy, 12);
+    og.addColorStop(0,   'rgba(255, 240, 200, 0.95)');
+    og.addColorStop(0.4, 'rgba(255, 200, 120, 0.5)');
+    og.addColorStop(1,   'rgba(199, 125, 44, 0)');
+    ctx.fillStyle = og;
+    ctx.beginPath(); ctx.arc(cx, oy, 12, 0, Math.PI * 2); ctx.fill();
+    // core bright dot
+    ctx.fillStyle = 'rgba(255, 250, 230, 0.95)';
+    ctx.beginPath(); ctx.arc(cx, oy, 2.5, 0, Math.PI * 2); ctx.fill();
+  }
+
+  // Label « TEST + » avec glow
+  ctx.save();
+  ctx.translate(cx, mid);
+  ctx.rotate(-Math.PI / 2);
+  ctx.shadowBlur = 10;
+  ctx.shadowColor = 'rgba(255, 200, 120, 0.9)';
+  ctx.fillStyle = '#FFE8B8';
+  ctx.font = 'bold 12px Calibri, sans-serif';
+  ctx.textAlign = 'center';
+  // Petits caps avec espacement
+  const text = 'T E S T   +';
+  ctx.fillText(text, 0, 4);
+  ctx.shadowBlur = 0;
+  ctx.restore();
+}
+
+function drawOutputZones(l) {
+  // Zone test+ : lignes pointillées avec glow
+  ctx.save();
+  ctx.shadowBlur = 6;
+  ctx.shadowColor = 'rgba(255, 200, 120, 0.4)';
+  ctx.strokeStyle = 'rgba(255, 200, 120, 0.5)';
+  ctx.lineWidth = 1;
+  ctx.setLineDash([5, 4]);
   ctx.beginPath();
   ctx.moveTo(l.gateX + 8, l.posTopY); ctx.lineTo(l.W - 30, l.posTopY);
   ctx.moveTo(l.gateX + 8, l.posBotY); ctx.lineTo(l.W - 30, l.posBotY);
   ctx.stroke();
   ctx.setLineDash([]);
+  ctx.restore();
 
-  ctx.fillStyle = '#F59E0B';
-  ctx.font = 'bold 12px Segoe UI';
+  // Label glow « TEST + »
+  ctx.shadowBlur = 8;
+  ctx.shadowColor = 'rgba(255, 200, 120, 0.8)';
+  ctx.fillStyle = '#FFE8B8';
+  ctx.font = 'bold 11px Calibri, sans-serif';
   ctx.textAlign = 'right';
-  ctx.fillText('« TEST + »', l.W - 35, l.posTopY - 8);
-  ctx.fillStyle = '#94A3B8';
-  ctx.font = 'italic 10px Segoe UI';
-  ctx.fillText("on remonte à la cause", l.W - 35, (l.posTopY+l.posBotY)/2 + 4);
+  ctx.fillText('« TEST + »', l.W - 35, l.posTopY - 10);
+  ctx.shadowBlur = 0;
 
-  ctx.fillStyle = 'rgba(148,163,184,0.05)';
+  ctx.fillStyle = 'rgba(200, 195, 175, 0.7)';
+  ctx.font = 'italic 11px Georgia';
+  ctx.fillText("on remonte à la cause", l.W - 35, (l.posTopY + l.posBotY) / 2 + 4);
+
+  // Zone test- ignorée, très discrète
+  ctx.fillStyle = 'rgba(80, 80, 100, 0.18)';
   ctx.fillRect(l.gateX + 30, l.negTopY, l.W - l.gateX - 60, l.negBotY - l.negTopY);
-  ctx.fillStyle = '#475569';
-  ctx.font = 'italic 10px Segoe UI';
+  ctx.fillStyle = 'rgba(140, 135, 125, 0.6)';
+  ctx.font = 'italic 10px Georgia';
   ctx.textAlign = 'right';
-  ctx.fillText('test - (ignoré)', l.W - 35, l.negBotY - 8);
+  ctx.fillText('test − (ignoré)', l.W - 35, l.negBotY - 8);
+}
 
-  // Particules
+function pParticleColor(p) {
+  return p.malade ? '#FF7A6F' : '#A8D8C8';
+}
+
+function drawParticles() {
+  ctx.save();
+  ctx.globalCompositeOperation = 'lighter'; // blending additif pour le glow
+
   for (const p of pParticles) {
     const t = Math.min(1, p.t);
     const head = bezier(t, p.x0, p.y0, p.x1, p.y1, p.x2, p.y2);
-    const N = 8;
-    ctx.lineWidth = 1.5;
+    const col = pParticleColor(p);
+
+    // Traînée glow (12 segments)
+    const N = 12;
     for (let i = 0; i < N; i++) {
-      const t1 = Math.max(0, t - (i+1) * 0.04);
-      const t2 = Math.max(0, t - i * 0.04);
+      const t1 = Math.max(0, t - (i + 1) * 0.032);
+      const t2 = Math.max(0, t - i * 0.032);
       if (t1 === t2) continue;
       const a = bezier(t1, p.x0, p.y0, p.x1, p.y1, p.x2, p.y2);
       const b = bezier(t2, p.x0, p.y0, p.x1, p.y1, p.x2, p.y2);
-      const alpha = (1 - i / N) * 0.6 * p.fade;
-      ctx.strokeStyle = pColor(p, alpha);
-      ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
-    }
-    ctx.beginPath();
-    ctx.arc(head.x, head.y, 3.2, 0, Math.PI*2);
-    ctx.fillStyle = pColor(p, p.fade);
-    ctx.fill();
-    if (p.positif && p.t > 0.5) {
+      const alpha = (1 - i / N) * 0.5 * p.fade;
+      ctx.strokeStyle = rgba(col, alpha);
+      ctx.lineWidth = 2.2 - i * 0.12;
+      ctx.lineCap = 'round';
       ctx.beginPath();
-      ctx.arc(head.x, head.y, 6, 0, Math.PI*2);
-      ctx.strokeStyle = `rgba(245,158,11,${0.5*p.fade})`;
-      ctx.lineWidth = 1; ctx.stroke();
+      ctx.moveTo(a.x, a.y);
+      ctx.lineTo(b.x, b.y);
+      ctx.stroke();
+    }
+
+    // Halo lumineux autour de la tête
+    const headGrad = ctx.createRadialGradient(head.x, head.y, 0, head.x, head.y, 10);
+    headGrad.addColorStop(0,    rgba(col, 0.9 * p.fade));
+    headGrad.addColorStop(0.4,  rgba(col, 0.35 * p.fade));
+    headGrad.addColorStop(1,    rgba(col, 0));
+    ctx.fillStyle = headGrad;
+    ctx.beginPath();
+    ctx.arc(head.x, head.y, 10, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Tête bright core (blanche/lumineuse)
+    ctx.fillStyle = `rgba(255, 255, 255, ${0.9 * p.fade})`;
+    ctx.beginPath();
+    ctx.arc(head.x, head.y, 1.8, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Étincelle au passage du gate
+    if (p.positif && p.t > 0.46 && p.t < 0.58) {
+      const sparkleAlpha = (1 - Math.abs(p.t - 0.52) / 0.06) * p.fade;
+      const sGrad = ctx.createRadialGradient(head.x, head.y, 0, head.x, head.y, 16);
+      sGrad.addColorStop(0,   `rgba(255, 230, 180, ${sparkleAlpha})`);
+      sGrad.addColorStop(0.5, `rgba(255, 200, 120, ${sparkleAlpha * 0.5})`);
+      sGrad.addColorStop(1,   'rgba(199, 125, 44, 0)');
+      ctx.fillStyle = sGrad;
+      ctx.beginPath();
+      ctx.arc(head.x, head.y, 16, 0, Math.PI * 2);
+      ctx.fill();
     }
   }
 
+  ctx.restore();
+}
+
+function pDraw() {
+  const l = pLayout();
+
+  // 1. Fond espace + étoiles + nébuleuses
+  drawSpaceBackground(l);
+
+  // 2. Zones de sortie (lignes guides + labels)
+  drawOutputZones(l);
+
+  // 3. Particules d'abord (sous les sources/gate pour qu'elles passent "derrière")
+  drawParticles();
+
+  // 4. Gate TEST+ stylisée
+  const gateY1 = l.posTopY - 10, gateY2 = l.posBotY + 10;
+  drawGate(l, gateY1, gateY2);
+
+  // 5. Sources (orbes lumineux par dessus)
+  drawCause(l.sourceX, l.sainY,   '#7EB6A6', 'SAIN',   ((1 - pP_C) * 100).toFixed(1) + ' %');
+  drawCause(l.sourceX, l.maladeY, '#E36D5E', 'MALADE', (pP_C * 100).toFixed(1) + ' %');
+
+  // 6. Résultat % avec glow
   if (pNPos > 5) {
     const r = pNMalPos / pNPos;
-    ctx.font = 'bold 36px Cambria, Georgia, serif';
-    ctx.fillStyle = 'rgba(245,158,11,0.95)';
+    ctx.save();
+    ctx.shadowBlur = 18;
+    ctx.shadowColor = 'rgba(255, 200, 120, 0.85)';
+    ctx.font = 'italic bold 44px Georgia';
+    ctx.fillStyle = '#FFE0A8';
     ctx.textAlign = 'right';
-    ctx.fillText((r*100).toFixed(1)+' %', l.W - 35, l.posBotY + 35);
-    ctx.font = 'italic 11px Segoe UI';
-    ctx.fillStyle = '#94A3B8';
-    ctx.fillText('malades parmi test +', l.W - 35, l.posBotY + 52);
+    ctx.fillText((r * 100).toFixed(1) + ' %', l.W - 35, l.posBotY + 42);
+    ctx.shadowBlur = 0;
+    ctx.font = 'italic 11px Georgia';
+    ctx.fillStyle = 'rgba(200, 195, 175, 0.85)';
+    ctx.fillText('malades parmi test +', l.W - 35, l.posBotY + 60);
+    ctx.restore();
   }
-}
-function pDrawCause(x, y, color, label, pct) {
-  ctx.beginPath(); ctx.arc(x, y, 22, 0, Math.PI*2);
-  ctx.fillStyle = color; ctx.fill();
-  ctx.strokeStyle = 'rgba(255,255,255,0.25)'; ctx.lineWidth = 1.5; ctx.stroke();
-  ctx.fillStyle = '#fff'; ctx.font = 'bold 9px Segoe UI'; ctx.textAlign = 'center';
-  ctx.fillText(label, x, y - 1);
-  ctx.font = '9px Segoe UI'; ctx.fillText(pct, x, y + 10);
 }
 
 let pLast = performance.now();
