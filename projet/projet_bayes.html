@@ -451,6 +451,11 @@ body.senior-mode .check .label-text { font-size: 17px; }
   transform: scale(1.4);
   z-index: 1;
 }
+.dotgrid .dot.manque {
+  background: var(--sage);
+  transform: scale(1.4);
+  z-index: 1;
+}
 .dot-legend {
   display: flex; gap: 28px;
   margin-top: 18px;
@@ -467,6 +472,7 @@ body.senior-mode .check .label-text { font-size: 17px; }
 }
 .dot-legend .swatch.rose  { background: var(--rose); }
 .dot-legend .swatch.ochre { background: var(--ochre); }
+.dot-legend .swatch.sage  { background: var(--sage); }
 
 /* ============ BUTTONS ============ */
 .btn {
@@ -691,6 +697,66 @@ canvas {
   font-style: italic;
   color: var(--charcoal);
   line-height: 1.55;
+}
+
+/* ============ SCHEMA EXPLICATIF ============ */
+.schema-frame {
+  border: 1px solid var(--hairline);
+  background: var(--paper);
+  padding: 32px 28px 24px;
+  margin: 36px 0;
+}
+.schema-frame svg { display: block; width: 100%; height: auto; }
+.schema-box rect { fill: var(--cream); stroke: var(--hairline); stroke-width: 1.5; }
+.schema-box.root rect { stroke: var(--ink); }
+.schema-box.malade rect { stroke: var(--rose); }
+.schema-box.sain rect { stroke: var(--sage); }
+.schema-box.hit rect { stroke: var(--ochre); stroke-width: 2; fill: var(--gold-faint); }
+.schema-box.result rect { stroke: var(--ochre); stroke-width: 2.5; fill: var(--gold-faint); }
+.schema-label {
+  font-family: Calibri, "Segoe UI", sans-serif;
+  font-size: 11px; font-weight: bold;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  fill: var(--mute);
+}
+.schema-box.malade .schema-label { fill: var(--rose); }
+.schema-box.sain .schema-label   { fill: var(--sage); }
+.schema-box.hit .schema-label,
+.schema-box.result .schema-label { fill: var(--ochre); }
+.schema-value {
+  font-family: Cambria, Georgia, serif;
+  font-style: italic; font-weight: bold;
+  font-size: 26px;
+  fill: var(--text);
+}
+.schema-box.hit .schema-value,
+.schema-box.result .schema-value { fill: var(--ochre); }
+.schema-value.big { font-size: 38px; }
+.schema-sub {
+  font-family: Calibri, "Segoe UI", sans-serif;
+  font-size: 11.5px;
+  font-style: italic;
+  fill: var(--mute);
+}
+.schema-line { stroke: var(--hairline); stroke-width: 1.5; fill: none; }
+.schema-line.hit { stroke: var(--ochre); stroke-width: 2; }
+.schema-caption {
+  margin: 22px auto 0;
+  max-width: 760px;
+  font-size: 14.5px;
+  font-style: italic;
+  color: var(--charcoal);
+  text-align: center;
+  line-height: 1.6;
+}
+.schema-caption strong { color: var(--text); font-weight: bold; font-style: italic; }
+.schema-caption em { color: var(--ochre); }
+@media (max-width: 900px) {
+  .schema-value { font-size: 20px; }
+  .schema-value.big { font-size: 28px; }
+  .schema-label { font-size: 9px; letter-spacing: 1.5px; }
+  .schema-sub { font-size: 9.5px; }
 }
 
 .section-h2 {
@@ -958,6 +1024,7 @@ footer.foot em { color: var(--ochre); font-style: normal; }
       <div class="dot-legend">
         <div><span class="swatch rose"></span><strong id="medMaladeCount">1</strong>&nbsp;vrai positif</div>
         <div><span class="swatch ochre"></span><strong id="medFauxCount">10</strong>&nbsp;faux positifs</div>
+        <div><span class="swatch sage"></span><strong id="medManqueCount">0</strong>&nbsp;non détecté(s)</div>
       </div>
     </div>
   </div>
@@ -1113,6 +1180,93 @@ footer.foot em { color: var(--ochre); font-style: normal; }
     </div>
   </div>
 
+  <h2 class="section-h2">Le schéma <em>explicatif.</em></h2>
+  <p class="math-prose">
+    D'où sort ce <em>9 %</em> ? Le plus simple est de suivre l'arbre ci-dessous :
+    on part de <strong>1 000 personnes</strong>, on descend la branche réelle
+    (malade ou saine), puis la branche du résultat de test (positif ou négatif).
+    Les deux chemins surlignés sont ceux qui terminent sur un <em>test positif</em> :
+    c'est leur rapport qui donne le posterior.
+  </p>
+  <div class="schema-frame">
+    <svg viewBox="0 0 1200 400" preserveAspectRatio="xMidYMid meet" role="img"
+         aria-label="Arbre de probabilités : sur 1000 personnes, 1 est malade et 999 sont saines. Le test donne environ 1 vrai positif et 10 faux positifs, soit une probabilité d'être malade sachant un test positif d'environ 9 %.">
+      <path class="schema-line" d="M200,210 L290,110"/>
+      <path class="schema-line" d="M200,210 L290,310"/>
+      <path class="schema-line" d="M530,110 L620,65"/>
+      <path class="schema-line" d="M530,110 L620,155"/>
+      <path class="schema-line" d="M530,310 L620,265"/>
+      <path class="schema-line" d="M530,310 L620,355"/>
+      <path class="schema-line hit" d="M860,65 L940,165"/>
+      <path class="schema-line hit" d="M860,265 L940,165"/>
+
+      <g class="schema-box root">
+        <rect x="10" y="160" width="190" height="100" rx="4"/>
+        <text class="schema-label" x="105" y="188" text-anchor="middle">POPULATION</text>
+        <text class="schema-value" x="105" y="218" text-anchor="middle">1 000</text>
+        <text class="schema-sub" x="105" y="244" text-anchor="middle">personnes testées</text>
+      </g>
+
+      <g class="schema-box malade">
+        <rect x="290" y="65" width="240" height="90" rx="4"/>
+        <text class="schema-label" x="410" y="91" text-anchor="middle">CAUSE · MALADE</text>
+        <text class="schema-value" x="410" y="121" text-anchor="middle">1 / 1000</text>
+        <text class="schema-sub" x="410" y="145" text-anchor="middle">P(C) = 0,1 %</text>
+      </g>
+
+      <g class="schema-box sain">
+        <rect x="290" y="265" width="240" height="90" rx="4"/>
+        <text class="schema-label" x="410" y="291" text-anchor="middle">CAUSE · SAIN</text>
+        <text class="schema-value" x="410" y="321" text-anchor="middle">999 / 1000</text>
+        <text class="schema-sub" x="410" y="345" text-anchor="middle">P(¬C) = 99,9 %</text>
+      </g>
+
+      <g class="schema-box hit">
+        <rect x="620" y="30" width="240" height="70" rx="4"/>
+        <text class="schema-label" x="740" y="52" text-anchor="middle">TEST +</text>
+        <text class="schema-value" x="740" y="80" text-anchor="middle">≈ 1</text>
+        <text class="schema-sub" x="740" y="96" text-anchor="middle">P(E|C) = 99 %</text>
+      </g>
+
+      <g class="schema-box">
+        <rect x="620" y="120" width="240" height="70" rx="4"/>
+        <text class="schema-label" x="740" y="142" text-anchor="middle">TEST −</text>
+        <text class="schema-value" x="740" y="170" text-anchor="middle">≈ 0</text>
+        <text class="schema-sub" x="740" y="186" text-anchor="middle">P(¬E|C) = 1 %</text>
+      </g>
+
+      <g class="schema-box hit">
+        <rect x="620" y="230" width="240" height="70" rx="4"/>
+        <text class="schema-label" x="740" y="252" text-anchor="middle">TEST +</text>
+        <text class="schema-value" x="740" y="280" text-anchor="middle">≈ 10</text>
+        <text class="schema-sub" x="740" y="296" text-anchor="middle">P(E|¬C) = 1 %</text>
+      </g>
+
+      <g class="schema-box">
+        <rect x="620" y="320" width="240" height="70" rx="4"/>
+        <text class="schema-label" x="740" y="342" text-anchor="middle">TEST −</text>
+        <text class="schema-value" x="740" y="370" text-anchor="middle">≈ 989</text>
+        <text class="schema-sub" x="740" y="386" text-anchor="middle">P(¬E|¬C) = 99 %</text>
+      </g>
+
+      <g class="schema-box result">
+        <rect x="940" y="95" width="240" height="140" rx="4"/>
+        <text class="schema-label" x="1060" y="123" text-anchor="middle">POSTERIOR</text>
+        <text class="schema-value big" x="1060" y="170" text-anchor="middle">≈ 9 %</text>
+        <text class="schema-sub" x="1060" y="198" text-anchor="middle">P(malade | test+)</text>
+        <text class="schema-sub" x="1060" y="216" text-anchor="middle">= 1 / (1 + 10)</text>
+      </g>
+    </svg>
+    <p class="schema-caption">
+      Sur <strong>1 000 personnes</strong>, la maladie touche <strong>1 personne</strong>
+      (le prior, 0,1 %). Le test, fiable à 99 %, la détecte
+      (<em>1 vrai positif</em>) — mais signale aussi à tort <em>10 personnes saines</em>
+      (faux positifs). Au final, sur les <strong>11 résultats positifs</strong>,
+      un seul correspond à un cas réel : c'est ce rapport, la branche surlignée,
+      qui donne le posterior ≈ <em>9 %</em>.
+    </p>
+  </div>
+
   <h2 class="section-h2">Le pipeline de <em>notre projet.</em></h2>
   <div class="pipeline">
     <div class="step"><h4>ENTRÉES</h4><p>Sliders, cases à cocher, comportement utilisateur.</p></div>
@@ -1131,6 +1285,15 @@ footer.foot em { color: var(--ochre); font-style: normal; }
   }
   <span class="kw">return</span> odds / (1 + odds);                <span class="cm">// → probabilité</span>
 }</pre>
+  <p class="math-prose">
+    Pourquoi passer par cette « cote » plutôt que d'appliquer directement
+    P(C|E) = P(E|C)·P(C) / P(E) ? Par <strong>stabilité numérique</strong>.
+    Quand le prior P(C) est très petit (ex. 0,001, comme dans l'exemple médical),
+    multiplier des probabilités minuscules entre elles rapproche le calcul de zéro
+    flottant. En cote, chaque indice n'intervient que comme un <em>facteur multiplicatif</em>
+    sur un nombre qui reste raisonnable — et l'ordre dans lequel on applique les
+    indices ne change rien au résultat.
+  </p>
 
   <h2 class="section-h2">L'exemple <em>chiffré.</em></h2>
   <p class="math-prose">
@@ -1308,8 +1471,25 @@ function updateMedical() {
       added++;
     }
   }
+
+  // pick "non détecté" positions (malades manqués par le test, faux négatifs)
+  const totalMal   = Math.round(prev * 1000);
+  const maxManque  = Math.max(0, Math.min(totalMal - maxMal, 1000 - usedSet.size));
+  s = 137;
+  added = 0;
+  while (added < maxManque) {
+    s = (s * 1664525 + 1013904223) >>> 0;
+    const idx = Math.floor((s / 4294967296) * 1000);
+    if (!usedSet.has(idx)) {
+      usedSet.add(idx);
+      medDots[idx].classList.add('manque');
+      added++;
+    }
+  }
+
   document.getElementById('medMaladeCount').textContent = maxMal;
   document.getElementById('medFauxCount').textContent   = maxFP;
+  document.getElementById('medManqueCount').textContent = maxManque;
 }
 ['medPrev','medSens','medFp'].forEach(id =>
   document.getElementById(id).addEventListener('input', updateMedical));
