@@ -426,6 +426,35 @@ body.senior-mode .check .label-text { font-size: 17px; }
   font-family: Calibri, sans-serif;
 }
 
+/* ============ ODDS TRACE ============ */
+.odds-trace {
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px solid var(--hairline);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px;
+  font-family: Georgia, serif;
+  font-style: italic;
+  font-size: 15px;
+  color: var(--charcoal);
+}
+.odds-trace .ot-label {
+  font-family: Calibri, sans-serif;
+  font-style: normal;
+  font-size: 10px; letter-spacing: 4px;
+  color: var(--mute); font-weight: bold;
+  margin-right: 6px;
+}
+.odds-trace .ot-value {
+  font-weight: bold;
+  color: var(--text);
+}
+.odds-trace .ot-value.final { color: var(--ochre); }
+.odds-trace .ot-eq { color: var(--mute); }
+.odds-trace .ot-factor { color: var(--mute); font-size: 13.5px; }
+
 /* ============ DOT GRID ============ */
 .dotgrid {
   display: grid;
@@ -661,6 +690,37 @@ canvas {
   max-width: 900px;
 }
 .quote-block strong { font-style: italic; color: var(--text); }
+
+/* ============ LIMITS BOX ============ */
+.limits-box {
+  border-left: 3px solid var(--sage);
+  padding: 18px 28px;
+  margin: 40px 0;
+  background: var(--paper);
+}
+.limits-box h3 {
+  font-family: Calibri, sans-serif;
+  font-size: 10px; letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--sage);
+  font-weight: bold;
+  margin: 0 0 10px;
+}
+.limits-box h3:not(:first-child) { margin-top: 22px; }
+.limits-box p {
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--charcoal);
+  margin: 0;
+}
+.limits-box strong { color: var(--text); font-weight: bold; }
+.limits-box em { color: var(--ochre); font-style: italic; }
+.limits-box code {
+  font-family: "Courier New", monospace;
+  background: var(--soft);
+  padding: 2px 8px;
+  font-size: 13.5px;
+}
 
 .term-columns {
   display: grid;
@@ -975,6 +1035,14 @@ footer.foot em { color: var(--ochre); font-style: normal; }
           <span class="lbl">POSTERIOR</span>
           <span class="v" id="spamBPost">30 %</span>
         </div>
+      </div>
+
+      <div class="odds-trace" id="spamOddsTrace">
+        <span class="ot-label">En cote</span>
+        <span class="ot-value" id="oddsStart">0,43</span>
+        <span id="oddsChain"></span>
+        <span class="ot-eq">=</span>
+        <span class="ot-value final" id="oddsEnd">0,43</span>
       </div>
     </div>
   </div>
@@ -1307,6 +1375,28 @@ P(malade | test+) = (0,99 × 0,001) / 0,01098  ≈  0,090   →   <span class="e
     Surprise : un test très fiable, sur une maladie rare, ne donne que <em>9 %</em>
     de probabilité d'être malade. Le prior écrase la vraisemblance.
   </p>
+
+  <h2 class="section-h2">Limites <em>&amp; hypothèses.</em></h2>
+  <div class="limits-box">
+    <h3>Hypothèse d'indépendance</h3>
+    <p>
+      Dès qu'on combine plusieurs indices (filtre anti-spam, détection d'âge), on
+      multiplie leurs rapports de vraisemblance — ce qui suppose qu'ils sont
+      <strong>indépendants</strong> une fois la cause connue. Or « mot gratuit » et
+      « ton urgent » sont souvent corrélés dans un même mail : les traiter comme
+      indépendants peut <em>sur-compter</em> la preuve. C'est l'approximation
+      classique des classifieurs <em>naïfs de Bayes</em> — un compromis assumé entre
+      simplicité du calcul et fidélité à la réalité.
+    </p>
+    <h3>Des ordres de grandeur, pas des mesures</h3>
+    <p>
+      Les rapports de vraisemblance du filtre anti-spam (×13,8, ×30…) sont des
+      estimations <strong>plausibles</strong>, choisies pour illustrer le mécanisme —
+      pas des statistiques mesurées sur un corpus de mails réel. Le calcul qui les
+      combine, lui, est exact et identique à celui de l'exemple médical : c'est la
+      même fonction <code>bayesUpdate</code> partout sur le site.
+    </p>
+  </div>
 </section>
 
 </main>
@@ -1346,6 +1436,13 @@ function setResultClass(el, pct) {
   if (pct > 0.66) el.classList.add('high');
   else if (pct > 0.33) el.classList.add('mid');
   else el.classList.add('low');
+}
+
+// Formate une cote pour l'affichage : 2 décimales si petite, entière si grande
+function fmtOdds(x) {
+  if (x >= 1000) return Math.round(x).toLocaleString('fr-FR');
+  if (x >= 10)   return x.toFixed(1).replace('.', ',');
+  return x.toFixed(2).replace('.', ',');
 }
 
 //================ SPAM ================
@@ -1390,6 +1487,17 @@ function updateSpam() {
 
   document.getElementById('spamBPrior').textContent = Math.round(prior * 100) + ' %';
   document.getElementById('spamBPost').textContent  = Math.round(post * 100) + ' %';
+
+  // Trace de la cote : la forme « odds » en action, indice par indice
+  const oddsPrior = prior / (1 - prior);
+  const activeLRs = evidences.filter(e => e.on).map(e => e.pIfCause / e.pIfNotCause);
+  const oddsFinal = activeLRs.reduce((o, lr) => o * lr, oddsPrior);
+
+  document.getElementById('oddsStart').textContent = fmtOdds(oddsPrior);
+  document.getElementById('oddsEnd').textContent    = fmtOdds(oddsFinal);
+  document.getElementById('oddsChain').innerHTML = activeLRs.length
+    ? activeLRs.map(lr => `<span class="ot-factor">× ${fmtOdds(lr)}</span>`).join(' ')
+    : '<span class="ot-factor">(aucun indice coché)</span>';
 
   const v = document.getElementById('spamVerdict');
   v.classList.remove('high', 'low');
@@ -1587,6 +1695,8 @@ function addAgeEvidence(rt) {
   else if (rt < 1500) { lr = 1.00; tag = 'clic moyen ('        + Math.round(rt) + ' ms)'; }
   else if (rt < 2500) { lr = 1.70; tag = 'clic lent ('         + Math.round(rt) + ' ms)'; }
   else                { lr = 2.50; tag = 'clic très lent ('    + Math.round(rt) + ' ms)'; }
+  // pIfNotCause = 1 : `lr` encode déjà le rapport de vraisemblance complet
+  // P(temps | senior) / P(temps | non-senior). odds *= lr / 1 = odds *= lr.
   ageEvidences.push({ name: tag, pIfCause: lr, pIfNotCause: 1.0, on: true });
   ageRecompute();
   ageRenderIndices();
