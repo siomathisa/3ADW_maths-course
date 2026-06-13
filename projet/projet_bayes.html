@@ -1328,7 +1328,7 @@ footer.foot em { color: var(--ochre); font-style: normal; }
     <p class="schema-caption">
       Sur <strong>1 000 personnes</strong>, la maladie touche <strong>1 personne</strong>
       (le prior, 0,1 %). Le test, fiable à 99 %, la détecte
-      (<em>1 vrai positif</em>) — mais signale aussi à tort <em>10 personnes saines</em>
+      (<em>1 vrai positif</em>), mais signale aussi à tort <em>10 personnes saines</em>
       (faux positifs). Au final, sur les <strong>11 résultats positifs</strong>,
       un seul correspond à un cas réel : c'est ce rapport, la branche surlignée,
       qui donne le posterior ≈ <em>9 %</em>.
@@ -1359,7 +1359,7 @@ footer.foot em { color: var(--ochre); font-style: normal; }
     Quand le prior P(C) est très petit (ex. 0,001, comme dans l'exemple médical),
     multiplier des probabilités minuscules entre elles rapproche le calcul de zéro
     flottant. En cote, chaque indice n'intervient que comme un <em>facteur multiplicatif</em>
-    sur un nombre qui reste raisonnable — et l'ordre dans lequel on applique les
+    sur un nombre qui reste raisonnable, et l'ordre dans lequel on applique les
     indices ne change rien au résultat.
   </p>
 
@@ -1381,17 +1381,17 @@ P(malade | test+) = (0,99 × 0,001) / 0,01098  ≈  0,090   →   <span class="e
     <h3>Hypothèse d'indépendance</h3>
     <p>
       Dès qu'on combine plusieurs indices (filtre anti-spam, détection d'âge), on
-      multiplie leurs rapports de vraisemblance — ce qui suppose qu'ils sont
+      multiplie leurs rapports de vraisemblance, ce qui suppose qu'ils sont
       <strong>indépendants</strong> une fois la cause connue. Or « mot gratuit » et
       « ton urgent » sont souvent corrélés dans un même mail : les traiter comme
       indépendants peut <em>sur-compter</em> la preuve. C'est l'approximation
-      classique des classifieurs <em>naïfs de Bayes</em> — un compromis assumé entre
+      classique des classifieurs <em>naïfs de Bayes</em> : un compromis assumé entre
       simplicité du calcul et fidélité à la réalité.
     </p>
     <h3>Des ordres de grandeur, pas des mesures</h3>
     <p>
       Les rapports de vraisemblance du filtre anti-spam (×13,8, ×30…) sont des
-      estimations <strong>plausibles</strong>, choisies pour illustrer le mécanisme —
+      estimations <strong>plausibles</strong>, choisies pour illustrer le mécanisme,
       pas des statistiques mesurées sur un corpus de mails réel. Le calcul qui les
       combine, lui, est exact et identique à celui de l'exemple médical : c'est la
       même fonction <code>bayesUpdate</code> partout sur le site.
